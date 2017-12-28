@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>md-stdl</id>
+    <id>md.stdl</id>
     <version>$version$</version>
     <title>md.stdl</title>
     <authors>David Mórász (microdee)</authors>
@@ -11,7 +11,7 @@
     <projectUrl>https://github.com/microdee/md.stdl</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Utility library for smaller miscellaneous problems.</description>
-    <releaseNotes>not yet</releaseNotes>
+    <releaseNotes>none</releaseNotes>
     <copyright>Copyright © 2017 by David Mórász</copyright>
     <tags>utility qrcode rawinput keyboard mouse touch</tags>
   </metadata>

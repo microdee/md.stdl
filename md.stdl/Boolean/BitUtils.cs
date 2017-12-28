@@ -8,11 +8,11 @@ namespace md.stdl.Boolean
 {
     public static class BitUtils
     {
-        public static uint Or(IEnumerable<uint> vals) => vals.Aggregate<uint, uint>(0x0, (current, v) => current | v);
-        public static uint And(IEnumerable<uint> vals) => vals.Aggregate(vals.First(), (current, v) => current & v);
-        public static uint Xor(IEnumerable<uint> vals) => vals.Aggregate(vals.First(), (current, v) => current ^ v);
+        public static uint Or(params uint[] vals) => vals.Aggregate<uint, uint>(0x0, (current, v) => current | v);
+        public static uint And(params uint[] vals) => vals.Aggregate(vals.First(), (current, v) => current & v);
+        public static uint Xor(params uint[] vals) => vals.Aggregate(vals.First(), (current, v) => current ^ v);
 
-        public static uint Join(IEnumerable<bool> bools)
+        public static uint Join(params bool[] bools)
         {
             uint res = 0x0;
             int i = 0;

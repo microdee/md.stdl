@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>md.stdl</id>
+    <id>md-stdl</id>
     <version>$version$</version>
     <title>md.stdl</title>
     <authors>David Mórász (microdee)</authors>

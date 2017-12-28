@@ -16,8 +16,8 @@ dotnet_csproj:
   informational_version: '{version}'
 skip_commits:
   files:
-    - appveyor.yml
-    - *.md
+    - 'appveyor.yml'
+    - '*.md'
 before_build:
 - ps: nuget restore md.sln -verbosity quiet
 build:

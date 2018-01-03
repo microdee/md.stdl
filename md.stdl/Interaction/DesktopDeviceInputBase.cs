@@ -27,6 +27,10 @@ namespace md.stdl.Interaction
         /// Array of selected device wrappers
         /// </summary>
         public TDevice[] Devices { get; protected set; }
+        /// <summary>
+        /// Name of the selected devices
+        /// </summary>
+        public string[] DeviceNames { get; protected set; }
 
         /// <summary>
         /// List of all available RawInput devices for the selected type
@@ -58,7 +62,7 @@ namespace md.stdl.Interaction
         /// Internal constructor.
         /// </summary>
         /// <param name="deviceType">Inheriting classes should provide a RawInput DeviceType</param>
-        /// <remarks>Inheriting classes should call the virtual member SubscribeToDevices() after base constructor is called.</remarks>
+        /// <remarks>Implementer should call the virtual member SubscribeToDevices() after they created the manager.</remarks>
         protected DesktopDeviceInputManager(DeviceType deviceType)
         {
             DevType = deviceType;
@@ -70,9 +74,9 @@ namespace md.stdl.Interaction
         /// </summary>
         protected virtual void SubscribeToDevices()
         {
-            // The following function doesn't work properly in Windows XP, returning installed mouses only.
-            var oldDevices = (TDevice[])Devices.Clone();
+            var oldDevices = (TDevice[])Devices?.Clone() ?? new TDevice[0];
 
+            // The following function doesn't work properly in Windows XP, returning installed mouses only.
             RawDevices = Device.GetDevices()
                 .Where(d => d.DeviceType == DevType)
                 .OrderBy(d => d, new DeviceComparer())
@@ -81,6 +85,7 @@ namespace md.stdl.Interaction
             if (RawDevices.Count > 0 || !Environment.OSVersion.IsWinVistaOrHigher())
             {
                 Devices = new TDevice[SelectedDevices.Length];
+                DeviceNames = new string[SelectedDevices.Length];
                 // An index of -1 means to merge all devices into one
                 for (int i = 0; i < SelectedDevices.Length; i++)
                 {
@@ -88,17 +93,20 @@ namespace md.stdl.Interaction
                     if (index < 0 || RawDevices.Count == 0)
                     {
                         Devices[i] = CreateMergedDevice(i);
+                        DeviceNames[i] = "Merged";
                     }
                     else
                     {
                         var device = RawDevices[index % RawDevices.Count];
                         Devices[i] = CreateDevice(device, i);
+                        DeviceNames[i] = device.DeviceName;
                     }
                 }
             }
             else
             {
                 Devices = new TDevice[1];
+                DeviceNames = new [] { "Dummy" };
                 Devices[0] = CreateDummy();
             }
 

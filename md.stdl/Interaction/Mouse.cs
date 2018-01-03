@@ -82,7 +82,7 @@ namespace md.stdl.Interaction
             var mouseData = new MouseData() { Position = initialPosition };
             var mouseInput = Observable.FromEventPattern<MouseInputEventArgs>(typeof(Device), "MouseInput");
             var notifications = mouseInput
-                .SelectMany<EventPattern<MouseInputEventArgs>, MouseNotification>(ep => GenerateMouseNotifications(mouseData, ep.EventArgs));
+                .SelectMany(ep => GenerateMouseNotifications(mouseData, ep.EventArgs));
             return new Mouse(notifications);
         }
 

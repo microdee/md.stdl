@@ -19,9 +19,9 @@ namespace md.stdl.Interaction
     /// Observable Keyboard RawInput device wrapper manager
     /// </summary>
     /// <remarks>Creates and manages multiple instances of the observable VVVV.Utils.IO.Keyboard which will then provide notifications about keyboard events</remarks>
-    public class KeyboardInput : DesktopDeviceInputManager<Keyboard>
+    public class KeyboardInputManager : DesktopDeviceInputManager<Keyboard>
     {
-        public KeyboardInput() : base(DeviceType.Keyboard) { }
+        public KeyboardInputManager() : base(DeviceType.Keyboard) { }
 
         protected override Keyboard CreateDevice(DeviceInfo deviceInfo, int index)
         {

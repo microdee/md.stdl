@@ -28,7 +28,8 @@ namespace md.stdl.Interaction
         /// <summary>
         /// Is this button currently pressed or have been pressed since the last reset
         /// </summary>
-        public bool Pressed { get; private set; }
+        public bool Pressed => ClickCount > 0 || _internalPressed;
+        private bool _internalPressed;
 
         /// <summary>
         /// Were there a double click recently
@@ -61,7 +62,7 @@ namespace md.stdl.Interaction
         public void Press()
         {
             ClickCount++;
-            Pressed = true;
+            _internalPressed = true;
         }
 
         /// <summary>
@@ -69,8 +70,7 @@ namespace md.stdl.Interaction
         /// </summary>
         public void Release()
         {
-            if (ClickCount == 0)
-                Pressed = false;
+            _internalPressed = false;
             if (TimeSinceClicked.Elapsed.TotalSeconds < 0.18)
                 DoubleClick = true;
             TimeSinceClicked.Restart();
@@ -204,19 +204,38 @@ namespace md.stdl.Interaction
         /// <summary>
         /// Is this key currently pressed or have been pressed since the last reset
         /// </summary>
-        public bool Pressed { get; set; }
+        public bool Pressed => Count > 0 || _internalPressed;
+        private bool _internalPressed;
 
         /// <summary>
         /// Number of keypresses between resets
         /// </summary>
         public int Count { get; set; }
 
+        public void Press()
+        {
+            Count++;
+            _internalPressed = true;
+        }
+
+        public void Reset()
+        {
+            Count = 0;
+        }
+
+        /// <summary>
+        /// Should be called by an observer or the event of the button release
+        /// </summary>
+        public void Release()
+        {
+            _internalPressed = false;
+        }
+
         public object Clone()
         {
             return new AccumulatingKeyPress()
             {
                 KeyCode = KeyCode,
-                Pressed = Pressed,
                 Count = Count
             };
         }
@@ -242,24 +261,22 @@ namespace md.stdl.Interaction
                     var kdn = (KeyDownNotification)value;
                     if (Keypresses.ContainsKey(kdn.KeyCode))
                     {
-                        Keypresses[kdn.KeyCode].Count++;
-                        Keypresses[kdn.KeyCode].Pressed = true;
+                        Keypresses[kdn.KeyCode].Press();
                     }
                     else
                     {
                         Keypresses.Add(kdn.KeyCode, new AccumulatingKeyPress()
                         {
-                            KeyCode = kdn.KeyCode,
-                            Count = 1,
-                            Pressed = true
+                            KeyCode = kdn.KeyCode
                         });
+                        Keypresses[kdn.KeyCode].Press();
                     }
                     break;
                 case KeyNotificationKind.KeyUp:
                     var kun = (KeyUpNotification)value;
                     if (Keypresses.ContainsKey(kun.KeyCode))
                     {
-                        Keypresses[kun.KeyCode].Pressed = false;
+                        Keypresses[kun.KeyCode].Release();
                     }
                     break;
             }
@@ -278,7 +295,7 @@ namespace md.stdl.Interaction
             }
             foreach (var key in Keypresses.Values)
             {
-                key.Count = 0;
+                key.Reset();
             }
         }
 

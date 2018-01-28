@@ -15,4 +15,14 @@
     <copyright>Copyright © 2017 by David Mórász</copyright>
     <tags>facetracking</tags>
   </metadata>
+  <files>
+    <file src="deploy\x64\md.stdl.Native.dll" target="lib\x64\" />
+    <file src="deploy\x64\md.stdl.Native.pdb" target="lib\x64\" />
+
+    <file src="deploy\x86\md.stdl.Native.dll" target="lib\x86\" />
+    <file src="deploy\x86\md.stdl.Native.pdb" target="lib\x86\" />
+
+    <file src="deploy\x86\libfacedetect-x84.dll" target="content\x86\" copyToOutput="true" />
+    <file src="deploy\x64\libfacedetect-x64.dll" target="content\x64\" copyToOutput="true" />
+  </files>
 </package>

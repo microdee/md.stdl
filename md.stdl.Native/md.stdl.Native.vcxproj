@@ -75,10 +75,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)deploy\$(PlatformShortName)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)deploy</OutDir>
+    <OutDir>$(ProjectDir)deploy\$(PlatformShortName)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -99,6 +101,9 @@
     <Link>
       <AdditionalDependencies />
     </Link>
+    <PostBuildEvent>
+      <Command>COPY $(SolutionDir)dlls\$(PlatformShortName)\*.dll $(ProjectDir)deploy\$(PlatformShortName)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -111,7 +116,7 @@
       <AdditionalDependencies />
     </Link>
     <PostBuildEvent>
-      <Command>COPY $(SolutionDir)dlls\*.dll $(ProjectDir)deploy\</Command>
+      <Command>COPY $(SolutionDir)dlls\$(PlatformShortName)\*.dll $(ProjectDir)deploy\$(PlatformShortName)\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -167,6 +172,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="md.stdl.Native.nuspec" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

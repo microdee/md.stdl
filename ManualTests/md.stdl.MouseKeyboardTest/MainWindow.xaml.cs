@@ -18,9 +18,6 @@ using md.stdl.Interaction;
 
 namespace md.stdl.MouseKeyboardTest
 {
-    public class KeyboardRecord
-    {
-    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>

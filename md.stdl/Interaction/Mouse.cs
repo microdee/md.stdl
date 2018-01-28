@@ -114,11 +114,11 @@ namespace md.stdl.Interaction
 
                     // this will keep mouse relative coordinates proportional
                     // so a distance traveled on X axis == same distance traveled on Y axis
-                    var minAsp = Math.Min(virtualScreenSize.Width, virtualScreenSize.Height);
-                    var screenAspW = virtualScreenSize.Width / minAsp;
-                    var screenAspH = virtualScreenSize.Height / minAsp;
+                    //float asp = Math.Min(virtualScreenSize.Width, virtualScreenSize.Height);
+                    //float screenAspW = virtualScreenSize.Width / asp;
+                    //float screenAspH = virtualScreenSize.Height / asp;
 
-                    position = new Point(args.X * screenAspW + position.X, args.Y * screenAspH + position.Y);
+                    position = new Point(args.X + position.X, args.Y + position.Y);
                     break;
                 case MouseMode.VirtualDesktop:
                     position = new Point(args.X, args.Y);

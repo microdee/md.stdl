@@ -25,6 +25,8 @@ build:
   include_nuget_references: true
   verbosity: normal
 after_build:
+- ps: 
+before_deploy:
 - ps: >-
     nuget pack md.stdl\md.stdl.csproj -Version $env:appveyor_build_version -Suffix beta
 

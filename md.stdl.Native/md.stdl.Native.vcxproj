@@ -85,10 +85,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)deploy\$(PlatformShortName)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)deploy</OutDir>
+    <OutDir>$(ProjectDir)deploy\$(PlatformShortName)\</OutDir>
     <IntDir>$(ProjectDir)Intermediate</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -128,6 +130,9 @@
     <Link>
       <AdditionalDependencies />
     </Link>
+    <PostBuildEvent>
+      <Command>COPY $(SolutionDir)dlls\$(PlatformShortName)\*.dll $(ProjectDir)deploy\$(PlatformShortName)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -139,7 +144,7 @@
       <AdditionalDependencies />
     </Link>
     <PostBuildEvent>
-      <Command>COPY $(SolutionDir)dlls\*.dll $(ProjectDir)deploy\</Command>
+      <Command>COPY $(SolutionDir)dlls\$(PlatformShortName)\*.dll $(ProjectDir)deploy\$(PlatformShortName)\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

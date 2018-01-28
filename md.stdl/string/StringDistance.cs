@@ -75,7 +75,7 @@ namespace md.stdl.String
             () => new SmithWaterman()
         };
 
-        public StringDistance(string a, string b, IEnumerable<DistanceMetric> usedMetrics)
+        public StringDistance(string a, string b, params DistanceMetric[] usedMetrics)
         {
             Results = usedMetrics.Distinct().Select(metric => Metrics[(int)metric].Invoke().MeasureDistance(a, b)).ToArray();
         }

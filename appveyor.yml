@@ -1,9 +1,7 @@
 version: 0.1.{build}
 image: Visual Studio 2017
 configuration: Release
-platform:
-- x86
-- x64
+platform: Any CPU
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'

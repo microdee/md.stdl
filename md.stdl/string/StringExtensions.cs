@@ -52,7 +52,7 @@ namespace md.stdl.String
             };
         }
 
-        public static string MultiEdit(this string input, IEnumerable<EditInsert> edits)
+        public static string MultiEdit(this string input, params EditInsert[] edits)
         {
             int offs = 0;
             string res = input;

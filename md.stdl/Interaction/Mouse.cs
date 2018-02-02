@@ -17,6 +17,7 @@ using VVVV.Utils.IO;
 
 namespace md.stdl.Interaction
 {
+    /// <inheritdoc />
     /// <summary>
     /// Observable Mouse RawInput device wrapper manager
     /// </summary>

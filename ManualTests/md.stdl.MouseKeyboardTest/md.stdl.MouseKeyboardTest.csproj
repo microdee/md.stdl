@@ -115,8 +115,14 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="VVVV.UtilsSA, Version=35.11.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\VVVV.UtilsSA.35.11.2\lib\net46\VVVV.UtilsSA.dll</HintPath>
+    <Reference Include="VVVV.Utils">
+      <HintPath>..\..\dlls\any\VVVV.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="VVVV.Utils3rdParty">
+      <HintPath>..\..\dlls\any\VVVV.Utils3rdParty.dll</HintPath>
+    </Reference>
+    <Reference Include="VVVV.UtilsIL">
+      <HintPath>..\..\dlls\any\VVVV.UtilsIL.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />

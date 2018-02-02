@@ -114,8 +114,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="VVVV.UtilsSA, Version=35.11.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\VVVV.UtilsSA.35.11.2\lib\net46\VVVV.UtilsSA.dll</HintPath>
+    <Reference Include="VVVV.Utils">
+      <HintPath>..\dlls\any\VVVV.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="VVVV.Utils3rdParty">
+      <HintPath>..\dlls\any\VVVV.Utils3rdParty.dll</HintPath>
+    </Reference>
+    <Reference Include="VVVV.UtilsIL">
+      <HintPath>..\dlls\any\VVVV.UtilsIL.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -128,8 +134,19 @@
     <Compile Include="Interaction\InputHelpers.cs" />
     <Compile Include="Interaction\Keyboard.cs" />
     <Compile Include="Interaction\Mouse.cs" />
+    <Compile Include="Interaction\MultitouchStack\2DGuiElements.cs" />
+    <Compile Include="Interaction\MultitouchStack\BaseGuiElement.cs" />
+    <Compile Include="Interaction\MultitouchStack\ElementTransformation.cs" />
+    <Compile Include="Interaction\MultitouchStack\GuiElement.cs" />
+    <Compile Include="Interaction\MultitouchStack\GuiElementExtensions.cs" />
+    <Compile Include="Interaction\MultitouchStack\InteractionBehavior.cs" />
+    <Compile Include="Interaction\MultitouchStack\MultitouchContext.cs" />
     <Compile Include="Interaction\RawInputService.cs" />
     <Compile Include="Interaction\PrimitiveTouch.cs" />
+    <Compile Include="Mathematics\Coordinates.cs" />
+    <Compile Include="Mathematics\Filters.cs" />
+    <Compile Include="Mathematics\Intersections.cs" />
+    <Compile Include="Mathematics\NumericsExtensions.cs" />
     <Compile Include="Mathematics\Sphere.cs" />
     <Compile Include="Network\DownloadSlot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -108,8 +108,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="VVVV.UtilsSA, Version=35.11.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\VVVV.UtilsSA.35.11.2\lib\net46\VVVV.UtilsSA.dll</HintPath>
+    <Reference Include="VVVV.Utils">
+      <HintPath>..\dlls\any\VVVV.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="VVVV.Utils3rdParty">
+      <HintPath>..\dlls\any\VVVV.Utils3rdParty.dll</HintPath>
+    </Reference>
+    <Reference Include="VVVV.UtilsIL">
+      <HintPath>..\dlls\any\VVVV.UtilsIL.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">

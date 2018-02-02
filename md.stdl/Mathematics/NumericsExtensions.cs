@@ -4,6 +4,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using VVVV.Utils.VMath;
+using VMatrix = VVVV.Utils.VMath.Matrix4x4;
+using SMatrix = System.Numerics.Matrix4x4;
 
 namespace md.stdl.Mathematics
 {
@@ -57,5 +60,31 @@ namespace md.stdl.Mathematics
         public static Vector3 yzw(this Vector4 a) { return new Vector3(a.Y, a.W, a.Z); }
         public static Vector3 zwy(this Vector4 a) { return new Vector3(a.Z, a.W, a.Y); }
         public static Vector3 zyw(this Vector4 a) { return new Vector3(a.Z, a.Y, a.W); }
+
+        public static Vector2D AsVVector(this Vector2 v) { return new Vector2D(v.X, v.Y); }
+        public static Vector3D AsVVector(this Vector3 v) { return new Vector3D(v.X, v.Y, v.Z); }
+        public static Vector4D AsVVector(this Vector4 v) { return new Vector4D(v.X, v.Y, v.Z, v.W); }
+
+        public static Vector2 AsSystemVector(this Vector2D v) { return new Vector2((float)v.x, (float)v.y); }
+        public static Vector3 AsSystemVector(this Vector3D v) { return new Vector3((float)v.x, (float)v.y, (float)v.z); }
+        public static Vector4 AsSystemVector(this Vector4D v) { return new Vector4((float)v.x, (float)v.y, (float)v.z, (float)v.w); }
+
+        public static VMatrix AsVMatrix4X4(this SMatrix m)
+        {
+            return new VMatrix(
+                m.M11, m.M12, m.M13, m.M14,
+                m.M21, m.M22, m.M23, m.M24,
+                m.M31, m.M32, m.M33, m.M34,
+                m.M41, m.M42, m.M43, m.M44);
+        }
+
+        public static SMatrix AsSystemMatrix4X4(this VMatrix m)
+        {
+            return new SMatrix(
+                (float)m.m11, (float)m.m12, (float)m.m13, (float)m.m14,
+                (float)m.m21, (float)m.m22, (float)m.m23, (float)m.m24,
+                (float)m.m31, (float)m.m32, (float)m.m33, (float)m.m34,
+                (float)m.m41, (float)m.m42, (float)m.m43, (float)m.m44);
+        }
     }
 }

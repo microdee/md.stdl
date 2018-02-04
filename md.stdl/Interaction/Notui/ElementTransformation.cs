@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using md.stdl.Mathematics;
-using VVVV.Utils.Animation;
 using Matrix4x4 = System.Numerics.Matrix4x4;
 
-namespace md.stdl.Interaction.MultitouchStack
+namespace md.stdl.Interaction.Notui
 {
     public class ElementTransformation : ICopy<ElementTransformation>
     {

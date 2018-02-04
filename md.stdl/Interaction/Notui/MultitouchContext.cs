@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using md.stdl.Mathematics;
 
-namespace md.stdl.Interaction.MultitouchStack
+namespace md.stdl.Interaction.Notui
 {
     /// <summary>
     /// Stateless prototype of a TouchContainer
@@ -21,9 +17,9 @@ namespace md.stdl.Interaction.MultitouchStack
     }
 
     /// <summary>
-    /// Context to manage GuiElements and Touches
+    /// Notui Context to manage GuiElements and Touches
     /// </summary>
-    public class MultitouchContext
+    public class NotuiContext
     {
         /// <summary>
         /// Consider touches to be new before the age of this amount of frames
@@ -63,7 +59,7 @@ namespace md.stdl.Interaction.MultitouchStack
         /// </summary>
         public List<IGuiElement> FlatElementList { get; } = new List<IGuiElement>();
 
-        public MultitouchContext()
+        public NotuiContext()
         {
         }
 
@@ -142,17 +138,29 @@ namespace md.stdl.Interaction.MultitouchStack
             // look at which touches hit which element
             Touches.Values.ForEach(touch =>
             {
-                var hitelements = GetTopInteractableElements(from element in FlatElementList
-                    where element.HitTest(touch)
-                    orderby element.Depth
-                    select element).ToArray();
+                // get hitting intersections and order them from closest to furthest
+                var intersections = FlatElementList.Select(el =>
+                    {
+                        var intersection = el.HitTest(touch);
+                        if (intersection != null) intersection.Element = el;
+                        return intersection;
+                    })
+                    .Where(insec => insec != null)
+                    .Where(insec => insec.Element.Active)
+                    .OrderBy(insec => insec.Element.Depth);
 
-                touch.AttachedObject = hitelements;
+                // Sift through ordered intersection list until the furthest non-transparent element
+                // or in other words ignore all intersected elements which are further away from the closest non-transparent element
+                var passedintersections = GetTopInteractableElements(intersections);
 
-                foreach (var element in hitelements)
+                // Add the touch and the corresponding intersection point to the interacting elements
+                // and attach those elements to the touch too.
+                touch.AttachedObject = passedintersections.Select(insec =>
                 {
-                    element.Hovering.Add(touch);
-                }
+                    insec.Element.Hovering.Add(touch, insec);
+                    return insec.Element;
+                }).ToArray();
+                
             });
 
             // Do element logic in parallel
@@ -205,14 +213,14 @@ namespace md.stdl.Interaction.MultitouchStack
             _elementDeleted = true;
         }
 
-        private static IEnumerable<IGuiElement> GetTopInteractableElements(IEnumerable<IGuiElement> orderedhitelements)
+        private static IEnumerable<IntersectionPoint> GetTopInteractableElements(IEnumerable<IntersectionPoint> orderedhitinsecs)
         {
-            if (orderedhitelements == null) yield break;
+            if (orderedhitinsecs == null) yield break;
 
-            foreach (var element in orderedhitelements)
+            foreach (var insec in orderedhitinsecs)
             {
-                yield return element;
-                if (element.Transparent) continue;
+                yield return insec;
+                if (insec.Element.Transparent) continue;
                 yield break;
             }
         }

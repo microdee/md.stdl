@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace md.stdl.Interaction.MultitouchStack
+namespace md.stdl.Interaction.Notui
 {
     public static class GuiElementExtensions
     {

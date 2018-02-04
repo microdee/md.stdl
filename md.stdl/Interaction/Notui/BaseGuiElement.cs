@@ -3,24 +3,22 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Math;
 
-namespace md.stdl.Interaction.MultitouchStack
+namespace md.stdl.Interaction.Notui
 {
     /// <inheritdoc cref="IGuiElement" />
     /// <summary>
     /// Simple element base implementing some useful management functions
     /// </summary>
-    public abstract class BaseGuiElement : IGuiElement
+    /// <typeparam name="TElement">The type of the element inheriting this class</typeparam>
+    public abstract class BaseGuiElement<TElement> : IGuiElement where TElement : IGuiElement, new()
     {
         private Matrix4x4 _interactionMatrix;
         private Matrix4x4 _displayMatrix;
         private ElementTransformation _displayTransformation;
 
         public string Name { get; set; }
-        public MultitouchContext Context { get; set; }
+        public NotuiContext Context { get; set; }
         public bool Active { get; set; }
         public bool Transparent { get; set; }
 
@@ -37,10 +35,10 @@ namespace md.stdl.Interaction.MultitouchStack
 
         public HashSet<TouchContainer<IGuiElement[]>> Touching { get; set; } =
             new HashSet<TouchContainer<IGuiElement[]>>(new TouchEqualityComparer());
-        public HashSet<TouchContainer<IGuiElement[]>> Hitting { get; set; } =
-            new HashSet<TouchContainer<IGuiElement[]>>(new TouchEqualityComparer());
-        public HashSet<TouchContainer<IGuiElement[]>> Hovering { get; set; } =
-            new HashSet<TouchContainer<IGuiElement[]>>(new TouchEqualityComparer());
+        public Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hitting { get; set; } =
+            new Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
+        public Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hovering { get; set; } =
+            new Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
 
         public IGuiElement Parent { get; set; }
         public List<IGuiElement> Children { get; set; } = new List<IGuiElement>();
@@ -118,23 +116,27 @@ namespace md.stdl.Interaction.MultitouchStack
             OnChildrenAdded?.Invoke(this, new ChildrenAddedEventArgs {Elements = children});
         }
 
-        public abstract bool HitTest(TouchContainer<IGuiElement[]> touch);
+        public abstract IntersectionPoint HitTest(TouchContainer<IGuiElement[]> touch);
 
         public virtual void ProcessTouch(TouchContainer<IGuiElement[]> touch)
         {
-            var hit = Hovering.Contains(touch);
-            var eventargs = new TouchInteractionEventArgs { Touch = touch };
+            var hit = Hovering.ContainsKey(touch);
+            var eventargs = new TouchInteractionEventArgs
+            {
+                Touch = touch,
+                IntersectionPoint = Hovering[touch]
+            };
             if (!hit)
             {
-                if (!Hitting.Contains(touch)) return;
+                if (!Hitting.ContainsKey(touch)) return;
                 Hitting.Remove(touch);
                 OnHitEnd?.Invoke(this, eventargs);
                 return;
             }
-            if (!Hitting.Contains(touch))
+            if (!Hitting.ContainsKey(touch))
             {
                 OnHitBegin?.Invoke(this, eventargs);
-                Hitting.Add(touch);
+                Hitting.Add(touch, Hovering[touch]);
             }
             FireInteractionTouchBegin(touch);
         }
@@ -148,7 +150,7 @@ namespace md.stdl.Interaction.MultitouchStack
 
             if (FadeInTime > 0)
             {
-                ElementFade = Min(Max(0, (float) Age.Elapsed.TotalSeconds / FadeInTime), 1);
+                ElementFade = Math.Min(Math.Max(0, (float) Age.Elapsed.TotalSeconds / FadeInTime), 1);
             }
             else
             {
@@ -159,7 +161,7 @@ namespace md.stdl.Interaction.MultitouchStack
 
             if (FadeOutTime > 0)
             {
-                ElementFade *= Min(Max(0, 1 - (float)Dethklok.Elapsed.TotalSeconds / FadeOutTime), 1);
+                ElementFade *= Math.Min(Math.Max(0, 1 - (float)Dethklok.Elapsed.TotalSeconds / FadeOutTime), 1);
                 if (Dethklok.Elapsed.TotalSeconds > FadeOutTime)
                 {
                     ElementFade = 0;
@@ -177,7 +179,12 @@ namespace md.stdl.Interaction.MultitouchStack
 
         }
 
-        public abstract IGuiElement Copy();
+        public virtual IGuiElement Copy()
+        {
+            var res = new TElement();
+            this.CopyTo(res);
+            return res;
+        }
 
         public void InvalidateMatrices()
         {

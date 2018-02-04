@@ -3,19 +3,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace md.stdl.Interaction.MultitouchStack
+namespace md.stdl.Interaction.Notui
 {
     public class TouchInteractionEventArgs : EventArgs
     {
         public TouchContainer<IGuiElement[]> Touch;
+        public IntersectionPoint IntersectionPoint;
     }
 
     public class ChildrenAddedEventArgs : EventArgs
     {
         public IGuiElement[] Elements;
+    }
+
+    public class IntersectionPoint
+    {
+        public Vector3 WorldSpace { get; set; }
+        public Vector3 ElementSpace { get; set; }
+        public IGuiElement Element { get; set; }
     }
 
     /// <inheritdoc />
@@ -64,7 +70,7 @@ namespace md.stdl.Interaction.MultitouchStack
         /// </summary>
         public string[] Texts = new string[1];
         /// <summary>
-        /// Whatever you want
+        /// Whatever you want as long as it's clonable
         /// </summary>
         public ICloneable Auxiliary;
 
@@ -86,7 +92,7 @@ namespace md.stdl.Interaction.MultitouchStack
 
     /// <inheritdoc />
     /// <summary>
-    /// Interface for an element inside the MultitouchContext
+    /// Interface for an element inside a Notui Context
     /// </summary>
     public interface IGuiElement : ICopy<IGuiElement>
     {
@@ -98,7 +104,7 @@ namespace md.stdl.Interaction.MultitouchStack
         /// <summary>
         /// The context which this element is assigned to.
         /// </summary>
-        MultitouchContext Context { get; set; }
+        NotuiContext Context { get; set; }
 
         /// <summary>
         /// Is element reacting to touches?
@@ -124,7 +130,7 @@ namespace md.stdl.Interaction.MultitouchStack
         /// The depth of this element in the touch context. Lowest depth value is the top element, highest is the bottom one.
         /// </summary>
         /// <remarks>
-        /// This is not the same as the Z component of an element's position. When processing the elements only this value is used to determine their order from to top bottom.
+        /// This is not the same as the Z component of an element's position. When processing the elements only this value is used to determine their order from lowest to highest.
         /// </remarks>
         float Depth { get; set; }
 
@@ -161,12 +167,12 @@ namespace md.stdl.Interaction.MultitouchStack
         /// <summary>
         /// List of touches directly over this element which is managed by this element
         /// </summary>
-        HashSet<TouchContainer<IGuiElement[]>> Hitting { get; set; }
+        Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hitting { get; set; }
 
         /// <summary>
         /// List of touches hovering this element which is managed by the context
         /// </summary>
-        HashSet<TouchContainer<IGuiElement[]>> Hovering { get; set; }
+        Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hovering { get; set; }
 
         /// <summary>
         /// The element this element inherits its transformation from. Null if this element is directly in a context.
@@ -290,8 +296,8 @@ namespace md.stdl.Interaction.MultitouchStack
         /// Pure hittest function used by the context
         /// </summary>
         /// <param name="touch">Current touch</param>
-        /// <returns></returns>
-        bool HitTest(TouchContainer<IGuiElement[]> touch);
+        /// <returns>Return null when the element is not hit by the touch and return the intersection coordinates otherwise</returns>
+        IntersectionPoint HitTest(TouchContainer<IGuiElement[]> touch);
 
         /// <summary>
         /// Used for managing side effects of touch interaction

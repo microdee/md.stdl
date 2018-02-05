@@ -19,6 +19,7 @@ namespace md.stdl.Interaction.Notui
         private ElementTransformation _displayTransformation;
 
         public string Name { get; set; }
+        public Guid Id { get; set; } = new Guid();
         public NotuiContext Context { get; set; }
         public bool Active { get; set; }
         public bool Transparent { get; set; }
@@ -103,12 +104,29 @@ namespace md.stdl.Interaction.Notui
         public event EventHandler OnDeleting;
         public event EventHandler OnFadedIn;
 
-        public void AddChildren(params IGuiElement[] children)
+        public void AddOrUpdateChildren(bool removeNotPresent, params IGuiElement[] children)
         {
-            Children.AddRange(children);
-            foreach (var child in children)
+            var newchildren = from child in children where Children.All(c => c.Id != child.Id) && child.Id != Id select child;
+            var existingchildren = from child in children where Children.Any(c => c.Id == child.Id) && child.Id != Id select child;
+
+            if (removeNotPresent)
+            {
+                var removablechildren = from child in Children where children.All(c => c.Id != child.Id) select child;
+                foreach (var element in removablechildren)
+                {
+                    element.StartDeletion();
+                }
+            }
+
+            foreach (var child in existingchildren)
+            {
+                var existingchild = Children.First(c => c.Id == child.Id);
+                child.UpdateTo(existingchild);
+            }
+            foreach (var child in newchildren)
             {
                 child.Parent = this;
+                Children.Add(child);
             }
             OnChildrenAdded?.Invoke(this, new ChildrenAddedEventArgs {Elements = children});
         }
@@ -233,6 +251,10 @@ namespace md.stdl.Interaction.Notui
 
         public void StartDeletion()
         {
+            foreach (var child in Children)
+            {
+                child.StartDeletion();
+            }
             if (FadeOutTime > 0)
             {
                 OnDeletionStarted?.Invoke(this, EventArgs.Empty);

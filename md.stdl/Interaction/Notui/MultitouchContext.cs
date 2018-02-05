@@ -176,9 +176,30 @@ namespace md.stdl.Interaction.Notui
             });
         }
 
-        public void AddElements(params IGuiElement[] elements)
+        public void AddOrUpdateElements(bool removeNotPresent, params IGuiElement[] elements)
         {
-            Elements.AddRange(elements);
+            var newelements = from element in elements where Elements.All(el => el.Id != element.Id) select element;
+            var existingelements = from element in elements where Elements.Any(el => el.Id == element.Id) select element;
+
+            if (removeNotPresent)
+            {
+                var removableelements = from element in Elements where elements.All(el => el.Id != element.Id) select element;
+                foreach (var element in removableelements)
+                {
+                    element.StartDeletion();
+                }
+            }
+
+            foreach (var element in existingelements)
+            {
+                var existingelement = Elements.First(el => el.Id == element.Id);
+                element.UpdateTo(existingelement);
+            }
+            foreach (var element in newelements)
+            {
+                element.Context = this;
+                Elements.Add(element);
+            }
             _elementAdded = true;
         }
 

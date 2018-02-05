@@ -103,6 +103,11 @@ namespace md.stdl.Interaction.Notui
         string Name { get; set; }
 
         /// <summary>
+        /// A unique identifier used comparing elements
+        /// </summary>
+        Guid Id { get; set; }
+
+        /// <summary>
         /// The context which this element is assigned to.
         /// </summary>
         NotuiContext Context { get; set; }
@@ -288,10 +293,11 @@ namespace md.stdl.Interaction.Notui
         event EventHandler OnFadedIn;
 
         /// <summary>
-        /// Implementer should do the children addition and call OnChildAdded to notify context
+        /// Implementer should do the children addition and updating and call OnChildAdded to notify context
         /// </summary>
         /// <param name="children">children to be added</param>
-        void AddChildren(params IGuiElement[] children);
+        /// <param name="removeNotPresent">remove Children from elements not present in the input</param>
+        void AddOrUpdateChildren(bool removeNotPresent, params IGuiElement[] children);
 
         /// <summary>
         /// Pure hittest function used by the context

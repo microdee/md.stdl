@@ -68,6 +68,7 @@ namespace md.stdl.Mathematics
         public static Vector2 AsSystemVector(this Vector2D v) { return new Vector2((float)v.x, (float)v.y); }
         public static Vector3 AsSystemVector(this Vector3D v) { return new Vector3((float)v.x, (float)v.y, (float)v.z); }
         public static Vector4 AsSystemVector(this Vector4D v) { return new Vector4((float)v.x, (float)v.y, (float)v.z, (float)v.w); }
+        public static Quaternion AsSystemQuaternion(this Vector4D v) { return new Quaternion((float)v.x, (float)v.y, (float)v.z, (float)v.w); }
 
         public static VMatrix AsVMatrix4X4(this SMatrix m)
         {

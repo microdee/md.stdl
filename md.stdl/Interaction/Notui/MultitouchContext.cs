@@ -68,7 +68,7 @@ namespace md.stdl.Interaction.Notui
         {
             // Calculating globals
             Matrix4x4.Invert(AspectRatio, out var invasp);
-            Matrix4x4.Invert(Projection, out var invproj);
+            //Matrix4x4.Invert(Projection, out var invproj);
             Matrix4x4.Invert(View, out var invview);
             var aspproj = Projection * invasp;
             Matrix4x4.Invert(aspproj, out var invaspproj);

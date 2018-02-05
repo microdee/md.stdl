@@ -46,6 +46,11 @@ namespace md.stdl.Interaction.Notui
     public interface IInteractionBehavior : ICopy<IInteractionBehavior>
     {
         /// <summary>
+        /// A unique identifier used comparing behaviors
+        /// </summary>
+        Guid Id { get; set; }
+
+        /// <summary>
         /// The element this behavior will affect
         /// </summary>
         IGuiElement AttachedElement { get; set; }
@@ -54,6 +59,12 @@ namespace md.stdl.Interaction.Notui
         /// The method which will be executed for the given element every frame.
         /// </summary>
         void Behave();
+
+        /// <summary>
+        /// Copy data into another behavior
+        /// </summary>
+        /// <param name="b"></param>
+        void CopyTo(IInteractionBehavior b);
     }
 
     /// <inheritdoc />

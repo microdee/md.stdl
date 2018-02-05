@@ -126,7 +126,18 @@ namespace md.stdl.Interaction.Notui
             b.InteractionTransformation = a.InteractionTransformation;
             b.DisplayTransformation = a.DisplayTransformation;
 
-            b.Behaviors = a.Behaviors;
+            foreach (var behavior in a.Behaviors)
+            {
+                if (b.Behaviors.All(behav => behav.Id != behavior.Id))
+                {
+                    b.Behaviors.Add(behavior);
+                }
+                else
+                {
+                    var bbehav = b.Behaviors.First(behav => behav.Id != behavior.Id);
+                    behavior.CopyTo(bbehav);
+                }
+            }
             b.FadeInTime = a.FadeInTime;
             b.FadeOutTime = a.FadeOutTime;
 

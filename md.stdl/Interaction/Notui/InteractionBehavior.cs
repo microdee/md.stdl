@@ -23,13 +23,20 @@ namespace md.stdl.Interaction.Notui
         /// </summary>
         public bool Pivotable { get; set; }
 
+        public Guid Id { get; set; } = Guid.NewGuid();
         public IGuiElement AttachedElement { get; set; }
+
         public void Behave()
         {
             throw new NotImplementedException();
         }
 
         public IInteractionBehavior Copy()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(IInteractionBehavior b)
         {
             throw new NotImplementedException();
         }

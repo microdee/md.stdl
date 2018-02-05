@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,10 +23,6 @@ namespace md.stdl.Interaction.Notui
         public bool Active { get; set; }
         public bool Transparent { get; set; }
 
-        public bool Draggable { get; set; }
-        public bool Scalable { get; set; }
-        public bool Pivotable { get; set; }
-
         public bool Hit { get; set; }
         public bool Touched { get; set; }
         public float Depth { get; set; }
@@ -33,12 +30,12 @@ namespace md.stdl.Interaction.Notui
         public float FadeInTime { get; set; }
         public float ElementFade { get; set; }
 
-        public HashSet<TouchContainer<IGuiElement[]>> Touching { get; set; } =
-            new HashSet<TouchContainer<IGuiElement[]>>(new TouchEqualityComparer());
-        public Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hitting { get; set; } =
-            new Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
-        public Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hovering { get; set; } =
-            new Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
+        public ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Touching { get; set; } =
+            new ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
+        public ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hitting { get; set; } =
+            new ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
+        public ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hovering { get; set; } =
+            new ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
 
         public IGuiElement Parent { get; set; }
         public List<IGuiElement> Children { get; set; } = new List<IGuiElement>();
@@ -126,24 +123,26 @@ namespace md.stdl.Interaction.Notui
                 Touch = touch,
                 IntersectionPoint = Hovering[touch]
             };
+            if (hit && Touching.ContainsKey(touch)) Touching[touch] = Hovering[touch];
             if (!hit)
             {
                 if (!Hitting.ContainsKey(touch)) return;
-                Hitting.Remove(touch);
+                Hitting.TryRemove(touch, out var dummy);
                 OnHitEnd?.Invoke(this, eventargs);
+                if (Touching.ContainsKey(touch)) Touching[touch] = null;
                 return;
             }
             if (!Hitting.ContainsKey(touch))
             {
                 OnHitBegin?.Invoke(this, eventargs);
-                Hitting.Add(touch, Hovering[touch]);
+                Hitting.TryAdd(touch, Hovering[touch]);
             }
             FireInteractionTouchBegin(touch);
         }
 
         public virtual void MainLoop()
         {
-            (from touch in Touching where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ForEach(FireTouchEnd);
+            (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ForEach(FireTouchEnd);
 
             Hit = Hitting.Count > 0;
             Touched = Touching.Count > 0;
@@ -203,11 +202,11 @@ namespace md.stdl.Interaction.Notui
         protected void FireInteractionTouchBegin(TouchContainer<IGuiElement[]> touch)
         {
             if(touch.AgeFrames >= Context.ConsiderNewBefore) return;
-            if(Touching.Contains(touch)) return;
+            if(Touching.ContainsKey(touch)) return;
             var eventargs = new TouchInteractionEventArgs { Touch = touch };
             if (Touching.Count == 0) OnInteractionBegin?.Invoke(this, eventargs);
             OnTouchBegin?.Invoke(this, eventargs);
-            Touching.Add(touch);
+            Touching.TryAdd(touch, Hovering[touch]);
         }
         protected void FireInteractionEnd(TouchContainer<IGuiElement[]> touch)
         {
@@ -218,8 +217,8 @@ namespace md.stdl.Interaction.Notui
         }
         protected void FireTouchEnd(TouchContainer<IGuiElement[]> touch)
         {
-            if (!Touching.Contains(touch)) return;
-            Touching.Remove(touch);
+            if (!Touching.ContainsKey(touch)) return;
+            Touching.TryRemove(touch, out var dummy);
             OnTouchEnd?.Invoke(this, new TouchInteractionEventArgs
             {
                 Touch = touch

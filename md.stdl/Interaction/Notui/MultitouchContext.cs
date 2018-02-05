@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -46,8 +47,8 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// All the touches in this context
         /// </summary>
-        public Dictionary<int, TouchContainer<IGuiElement[]>> Touches { get; } =
-            new Dictionary<int, TouchContainer<IGuiElement[]>>();
+        public ConcurrentDictionary<int, TouchContainer<IGuiElement[]>> Touches { get; } =
+            new ConcurrentDictionary<int, TouchContainer<IGuiElement[]>>();
 
         /// <summary>
         /// Elements in this context without a parent (or Root elements)
@@ -76,7 +77,7 @@ namespace md.stdl.Interaction.Notui
             (from touch in Touches.Values
                 where touch.ExpireFrames > ConsiderReleasedAfter
                 select touch.Id)
-                .ForEach(tid => Touches.Remove(tid));
+                .ForEach(tid => Touches.TryRemove(tid, out var dummy));
 
             // Touches mainloop and reset their hits
             Touches.Values.ForEach(touch =>
@@ -116,28 +117,29 @@ namespace md.stdl.Interaction.Notui
                 else
                 {
                     tt = new TouchContainer<IGuiElement[]>(touch.Id) { Force = touch.Force };
-                    Touches.Add(tt.Id, tt);
+                    Touches.TryAdd(tt.Id, tt);
                 }
                 tt.Update(touch.Point, deltaT);
-
-                // Transform touches into world
-                var tpw = Vector4.Transform(new Vector4(tt.Point, 0, 1), invaspproj * invview);
-                var tpdw = Vector4.Transform(new Vector4(tt.Point, 1, 1), invaspproj * invview);
-                tt.WorldPosition = tpw.xyz() / tpw.W;
-                tt.ViewDir = Vector3.Normalize(tpdw.xyz() / tpdw.W - tpw.xyz() / tpw.W);
             }
 
             // preparing elements for hittest
             foreach (var element in FlatElementList)
             {
+                element.Context = this;
                 var elpos = Vector4.Transform(new Vector4(element.DisplayTransformation.Position, 1), View * aspproj);
                 element.Depth = elpos.Z / elpos.W;
                 element.Hovering.Clear();
             }
 
             // look at which touches hit which element
-            Touches.Values.ForEach(touch =>
+            Touches.Values.AsParallel().ForEach(touch =>
             {
+                // Transform touches into world
+                var tpw = Vector4.Transform(new Vector4(touch.Point, 0, 1), invaspproj * invview);
+                var tpdw = Vector4.Transform(new Vector4(touch.Point, 1, 1), invaspproj * invview);
+                touch.WorldPosition = tpw.xyz() / tpw.W;
+                touch.ViewDir = Vector3.Normalize(tpdw.xyz() / tpdw.W - tpw.xyz() / tpw.W);
+
                 // get hitting intersections and order them from closest to furthest
                 var intersections = FlatElementList.Select(el =>
                     {
@@ -157,7 +159,7 @@ namespace md.stdl.Interaction.Notui
                 // and attach those elements to the touch too.
                 touch.AttachedObject = passedintersections.Select(insec =>
                 {
-                    insec.Element.Hovering.Add(touch, insec);
+                    insec.Element.Hovering.TryAdd(touch, insec);
                     return insec.Element;
                 }).ToArray();
                 

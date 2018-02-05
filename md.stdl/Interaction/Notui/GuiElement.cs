@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -162,17 +163,17 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// List of touches interacting with this element which is managed by this element
         /// </summary>
-        HashSet<TouchContainer<IGuiElement[]>> Touching { get; set; }
+        ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Touching { get; set; }
 
         /// <summary>
         /// List of touches directly over this element which is managed by this element
         /// </summary>
-        Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hitting { get; set; }
+        ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hitting { get; set; }
 
         /// <summary>
         /// List of touches hovering this element which is managed by the context
         /// </summary>
-        Dictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hovering { get; set; }
+        ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint> Hovering { get; set; }
 
         /// <summary>
         /// The element this element inherits its transformation from. Null if this element is directly in a context.

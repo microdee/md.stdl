@@ -74,10 +74,13 @@ namespace md.stdl.Interaction.Notui
             Matrix4x4.Invert(aspproj, out var invaspproj);
 
             // Removing expired touches
-            (from touch in Touches.Values
+            var removabletouches = from touch in Touches.Values
                 where touch.ExpireFrames > ConsiderReleasedAfter
-                select touch.Id)
-                .ForEach(tid => Touches.TryRemove(tid, out var dummy));
+                select touch.Id;
+            foreach (var tid in removabletouches)
+            {
+                Touches.TryRemove(tid, out var dummy);
+            }
 
             // Touches mainloop and reset their hits
             Touches.Values.ForEach(touch =>
@@ -132,7 +135,7 @@ namespace md.stdl.Interaction.Notui
             }
 
             // look at which touches hit which element
-            Touches.Values.AsParallel().ForEach(touch =>
+            Touches.Values.AsParallel().ForAll(touch =>
             {
                 // Transform touches into world
                 var tpw = Vector4.Transform(new Vector4(touch.Point, 0, 1), invaspproj * invview);
@@ -166,7 +169,7 @@ namespace md.stdl.Interaction.Notui
             });
 
             // Do element logic in parallel
-            FlatElementList.AsParallel().ForEach(el =>
+            FlatElementList.AsParallel().ForAll(el =>
             {
                 foreach (var touch in Touches.Values)
                 {
@@ -183,7 +186,8 @@ namespace md.stdl.Interaction.Notui
 
             if (removeNotPresent)
             {
-                var removableelements = from element in Elements where elements.All(el => el.Id != element.Id) select element;
+                var removableelements =
+                    (from element in Elements where elements.All(el => el.Id != element.Id) select element).ToArray();
                 foreach (var element in removableelements)
                 {
                     element.StartDeletion();

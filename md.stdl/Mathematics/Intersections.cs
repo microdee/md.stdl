@@ -47,7 +47,7 @@ namespace md.stdl.Mathematics
         /// <returns>Intersection happens or not</returns>
         public static bool PlaneRay(Vector3 rayOrigin, Vector3 rayDir, Matrix4x4 planeTr, out Vector3 isPoint, out Vector3 pointOnPlane)
         {
-            var norm = Vector3.TransformNormal(new Vector3(0, 0, -1), planeTr);
+            var norm = Vector3.TransformNormal(new Vector3(0, 0, 1), planeTr);
             var pos = planeTr.Translation;
             var ishit = PlaneRay(rayOrigin, rayDir, pos, norm, out var wpoint);
             if (ishit)

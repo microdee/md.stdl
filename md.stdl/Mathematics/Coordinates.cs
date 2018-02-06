@@ -10,6 +10,11 @@ namespace md.stdl.Mathematics
 {
     public static class Coordinates
     {
+        /// <summary>
+        /// Rectangular/Cartesian to polar coordinates
+        /// </summary>
+        /// <param name="cart">Cartesian coordinates</param>
+        /// <returns>A vector where X is angle and Y is distance</returns>
         public static Vector2 RectToPolar(Vector2 cart)
         {
             var angle = (float)Atan2(cart.Y, cart.X);

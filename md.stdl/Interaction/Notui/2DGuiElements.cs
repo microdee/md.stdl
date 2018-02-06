@@ -32,8 +32,8 @@ namespace md.stdl.Interaction.Notui
             var intersection = PreparePlanarShapeHitTest(touch);
             var phit = intersection != null;
             if (!phit) return null;
-            var hit = intersection.ElementSpace.X <= 1 && intersection.ElementSpace.X >= -1 &&
-                      intersection.ElementSpace.Y <= 1 && intersection.ElementSpace.Y >= -1;
+            var hit = intersection.ElementSpace.X <= 0.5 && intersection.ElementSpace.X >= -0.5 &&
+                      intersection.ElementSpace.Y <= 0.5 && intersection.ElementSpace.Y >= -0.5;
             return hit ? intersection : null;
         }
     }
@@ -44,7 +44,7 @@ namespace md.stdl.Interaction.Notui
             var intersection = PreparePlanarShapeHitTest(touch);
             var phit = intersection != null;
             if (!phit) return null;
-            return intersection.ElementSpace.xy().Length() < 1 ? intersection : null;
+            return intersection.ElementSpace.xy().Length() < 0.5 ? intersection : null;
         }
     }
     public class SegmentElement : PlanarElement<SegmentElement>
@@ -58,7 +58,7 @@ namespace md.stdl.Interaction.Notui
             var phit = intersection != null;
             if (!phit) return null;
             var polar = Coordinates.RectToPolar(intersection.ElementSpace.xy());
-            var hit = polar.Y < 1 && polar.X >= HoleRadius && (polar.Y + Math.PI) % VMath.TwoPi <= (Cycles * Math.PI * 2);
+            var hit = polar.Y * 2 < 1 && polar.Y * 2 >= HoleRadius && (polar.X + Math.PI) % VMath.TwoPi <= (Cycles * Math.PI * 2);
             return hit ? intersection : null;
         }
     }

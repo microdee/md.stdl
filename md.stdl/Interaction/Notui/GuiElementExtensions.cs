@@ -37,10 +37,10 @@ namespace md.stdl.Interaction.Notui
         /// <param name="flatlist">The list containing the result</param>
         public static void FlattenElements(this IGuiElement element, List<IGuiElement> flatlist)
         {
+            flatlist.Add(element);
             foreach (var child in element.Children)
             {
                 child.FlattenElements(flatlist);
-                flatlist.Add(child);
             }
         }
 

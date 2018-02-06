@@ -92,7 +92,7 @@ namespace md.stdl.Interaction.Notui
             {
                 Values = Values.ToArray(),
                 Texts = Texts.ToArray(),
-                Auxiliary = (ICloneable)Auxiliary.Clone()
+                Auxiliary = Auxiliary?.Clone() as ICloneable
             };
         }
 

@@ -19,7 +19,7 @@ namespace md.stdl.Interaction.Notui
         private ElementTransformation _displayTransformation;
 
         public string Name { get; set; }
-        public Guid Id { get; set; } = new Guid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public NotuiContext Context { get; set; }
         public bool Active { get; set; }
         public bool Transparent { get; set; }
@@ -139,7 +139,7 @@ namespace md.stdl.Interaction.Notui
             var eventargs = new TouchInteractionEventArgs
             {
                 Touch = touch,
-                IntersectionPoint = Hovering[touch]
+                IntersectionPoint = hit ? Hovering[touch] : null
             };
             if (hit && Touching.ContainsKey(touch)) Touching[touch] = Hovering[touch];
             if (!hit)
@@ -160,7 +160,22 @@ namespace md.stdl.Interaction.Notui
 
         public virtual void MainLoop()
         {
-            (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ForEach(FireTouchEnd);
+            var endtouches = (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch);
+            foreach (var touch in endtouches)
+            {
+                FireTouchEnd(touch);
+            }
+            var endhits = (from touch in Hitting.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch);
+            foreach (var touch in endhits)
+            {
+                var eventargs = new TouchInteractionEventArgs
+                {
+                    Touch = touch,
+                    IntersectionPoint = Hitting[touch]
+                };
+                Hitting.TryRemove(touch, out var dummy);
+                OnHitEnd?.Invoke(this, eventargs);
+            }
 
             Hit = Hitting.Count > 0;
             Touched = Touching.Count > 0;

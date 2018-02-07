@@ -179,7 +179,7 @@ namespace md.stdl.Interaction.Notui
             });
         }
 
-        public void AddOrUpdateElements(bool removeNotPresent, params IGuiElement[] elements)
+        public void AddOrUpdateElements(bool removeNotPresent, bool updateTransformOfRemovable, params IGuiElement[] elements)
         {
             var newelements = from element in elements where Elements.All(el => el.Id != element.Id) select element;
             var existingelements = from element in elements where Elements.Any(el => el.Id == element.Id) select element;
@@ -197,7 +197,7 @@ namespace md.stdl.Interaction.Notui
             foreach (var element in existingelements)
             {
                 var existingelement = Elements.First(el => el.Id == element.Id);
-                element.UpdateTo(existingelement);
+                element.UpdateTo(existingelement, updateTransform: updateTransformOfRemovable || !element.Dethklok.IsRunning);
             }
             foreach (var element in newelements)
             {

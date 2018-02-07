@@ -112,10 +112,11 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// Updates element data from another one which has the same Id
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <param name="updateChildren"></param>
-        public static void UpdateTo(this IGuiElement a, IGuiElement b, bool updateChildren = true)
+        /// <param name="a">Reference Element</param>
+        /// <param name="b">Destination Element</param>
+        /// <param name="updateChildren">Run this function recursively with children of the reference</param>
+        /// <param name="updateTransform">Update the transform or not</param>
+        public static void UpdateTo(this IGuiElement a, IGuiElement b, bool updateChildren = true, bool updateTransform = true)
         {
             if(a.Id != b.Id) return;
 
@@ -125,8 +126,8 @@ namespace md.stdl.Interaction.Notui
             b.Context = a.Context;
 
             b.Depth = a.Depth;
-            b.InteractionTransformation = a.InteractionTransformation;
-            b.DisplayTransformation = a.DisplayTransformation;
+            if(updateTransform) b.InteractionTransformation = a.InteractionTransformation;
+            if(updateTransform) b.DisplayTransformation = a.DisplayTransformation;
 
             foreach (var behavior in a.Behaviors)
             {
@@ -146,7 +147,13 @@ namespace md.stdl.Interaction.Notui
             b.Value = a.Value;
             b.Parent = a.Parent;
 
-            b.Children = a.Children;
+            if (updateChildren)
+            {
+                foreach (var aChild in a.Children)
+                {
+                    aChild.UpdateTo(b, true, updateTransform);
+                }
+            }
         }
     }
 }

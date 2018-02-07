@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -97,6 +98,7 @@ namespace md.stdl.Interaction.Notui
             b.FadeOutTime = a.FadeOutTime;
 
             b.Value = a.Value.Copy();
+            b.EnvironmentObject = a.EnvironmentObject?.Clone() as ICloneable;
 
             if (sameParent) b.Parent = a.Parent;
             if (copyId) b.Id = a.Id;

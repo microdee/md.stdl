@@ -249,6 +249,11 @@ namespace md.stdl.Interaction.Notui
         AttachedValues Value { get; set; }
 
         /// <summary>
+        /// Optional environment specific object for implementations so Value is not polluted
+        /// </summary>
+        ICloneable EnvironmentObject { get; set; }
+
+        /// <summary>
         /// Event on the first of multiple touches interacting with this element until the last touch is released
         /// </summary>
         event EventHandler<TouchInteractionEventArgs> OnInteractionBegin;

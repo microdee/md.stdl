@@ -46,6 +46,7 @@ namespace md.stdl.Interaction.Notui
         public Stopwatch Age { get; set; } = new Stopwatch();
         public Stopwatch Dethklok { get; set; } = new Stopwatch();
         public AttachedValues Value { get; set; } = new AttachedValues();
+        public ICloneable EnvironmentObject { get; set; }
         public ElementTransformation InteractionTransformation { get; set; } = new ElementTransformation();
         public ElementTransformation DisplayTransformation
         {

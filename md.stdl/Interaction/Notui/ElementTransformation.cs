@@ -100,6 +100,31 @@ namespace md.stdl.Interaction.Notui
         }
 
         /// <summary>
+        /// Get the position in viewspace
+        /// </summary>
+        /// <param name="context">The source context</param>
+        public Vector3 GetViewPosition(NotuiContext context)
+        {
+            return Vector3.Transform(Position, context.View);
+        }
+        /// <summary>
+        /// Get the rotation in viewspace
+        /// </summary>
+        /// <param name="context">The source context</param>
+        public Quaternion GetViewRotation(NotuiContext context)
+        {
+            return Rotation * Quaternion.Inverse(context.ViewOrientation);
+        }
+        /// <summary>
+        /// Get the matrix in viewspace
+        /// </summary>
+        /// <param name="context">The source context</param>
+        public Matrix4x4 GetViewTransform(NotuiContext context)
+        {
+            return Matrix * context.View;
+        }
+
+        /// <summary>
         /// Since the last request for the matrix the transformation didn't change.
         /// </summary>
         public bool Cached { get; private set; }

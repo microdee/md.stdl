@@ -128,6 +128,7 @@
   <ItemGroup>
     <Compile Include="Boolean\BitUtils.cs" />
     <Compile Include="Boolean\QrCodeBase.cs" />
+    <Compile Include="Coding\Collections.cs" />
     <Compile Include="Coding\Observables.cs" />
     <Compile Include="Interaction\AccumulatingInputObservers.cs" />
     <Compile Include="Interaction\DesktopDeviceInputBase.cs" />
@@ -153,6 +154,7 @@
     <Compile Include="Coding\Reflection.cs" />
     <Compile Include="String\StringDistance.cs" />
     <Compile Include="String\StringExtensions.cs" />
+    <Compile Include="Time\StopwatchInteractive.cs" />
     <Compile Include="Windows\MessageOnlyWindow.cs" />
   </ItemGroup>
   <ItemGroup>

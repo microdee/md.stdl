@@ -45,6 +45,19 @@ namespace md.stdl.Interaction.Notui
         public Matrix4x4 AspectRatio { get; set; } = Matrix4x4.Identity;
 
         /// <summary>
+        /// Camera Position in world
+        /// </summary>
+        public Vector3 ViewPosition { get; private set; } = Vector3.Zero;
+        /// <summary>
+        /// Camera view direction in world
+        /// </summary>
+        public Vector3 ViewDirection { get; private set; } = Vector3.UnitZ;
+        /// <summary>
+        /// Camera view orientation in world
+        /// </summary>
+        public Quaternion ViewOrientation { get; private set; } = Quaternion.Identity;
+
+        /// <summary>
         /// All the touches in this context
         /// </summary>
         public ConcurrentDictionary<int, TouchContainer<IGuiElement[]>> Touches { get; } =
@@ -53,12 +66,12 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// Elements in this context without a parent (or Root elements)
         /// </summary>
-        public List<IGuiElement> Elements { get; } = new List<IGuiElement>();
+        public Dictionary<Guid, IGuiElement> Elements { get; } = new Dictionary<Guid, IGuiElement>();
 
         /// <summary>
         /// All the elements in this context including the children of the root elements recursively
         /// </summary>
-        public List<IGuiElement> FlatElementList { get; } = new List<IGuiElement>();
+        public Dictionary<Guid, IGuiElement> FlatElementList { get; } = new Dictionary<Guid, IGuiElement>();
 
         public NotuiContext()
         {
@@ -72,6 +85,11 @@ namespace md.stdl.Interaction.Notui
             Matrix4x4.Invert(View, out var invview);
             var aspproj = Projection * invasp;
             Matrix4x4.Invert(aspproj, out var invaspproj);
+
+            Matrix4x4.Decompose(invview, out var vscale, out var vquat, out var vpos);
+            ViewOrientation = vquat;
+            ViewPosition = vpos;
+            ViewDirection = Vector3.Normalize(Vector3.TransformNormal(Vector3.UnitZ, View));
 
             // Removing expired touches
             var removabletouches = from touch in Touches.Values
@@ -93,11 +111,11 @@ namespace md.stdl.Interaction.Notui
             bool rebuild = false;
             if (_elementDeleted)
             {
-                foreach (var element in FlatElementList)
+                foreach (var element in FlatElementList.Values)
                 {
                     if (!element.DeleteMe) continue;
-                    if (element.Parent == null) Elements.Remove(element);
-                    else element.Parent.Children.Remove(element);
+                    if (element.Parent == null) Elements.Remove(element.Id);
+                    else element.Parent.Children.Remove(element.Id);
                 }
                 rebuild = true;
                 _elementDeleted = false;
@@ -126,7 +144,7 @@ namespace md.stdl.Interaction.Notui
             }
 
             // preparing elements for hittest
-            foreach (var element in FlatElementList)
+            foreach (var element in FlatElementList.Values)
             {
                 element.Context = this;
                 var elpos = Vector4.Transform(new Vector4(element.DisplayTransformation.Position, 1), View * aspproj);
@@ -144,7 +162,7 @@ namespace md.stdl.Interaction.Notui
                 touch.ViewDir = Vector3.Normalize(tpdw.xyz() / tpdw.W - tpw.xyz() / tpw.W);
 
                 // get hitting intersections and order them from closest to furthest
-                var intersections = FlatElementList.Select(el =>
+                var intersections = FlatElementList.Values.Select(el =>
                     {
                         var intersection = el.HitTest(touch);
                         if (intersection != null) intersection.Element = el;
@@ -169,7 +187,7 @@ namespace md.stdl.Interaction.Notui
             });
 
             // Do element logic in parallel
-            FlatElementList.AsParallel().ForAll(el =>
+            FlatElementList.Values.AsParallel().ForAll(el =>
             {
                 foreach (var touch in Touches.Values)
                 {
@@ -181,13 +199,13 @@ namespace md.stdl.Interaction.Notui
 
         public void AddOrUpdateElements(bool removeNotPresent, bool updateTransformOfRemovable, params IGuiElement[] elements)
         {
-            var newelements = from element in elements where Elements.All(el => el.Id != element.Id) select element;
-            var existingelements = from element in elements where Elements.Any(el => el.Id == element.Id) select element;
+            var newelements = from element in elements where !Elements.ContainsKey(element.Id) select element;
+            var existingelements = from element in elements where Elements.ContainsKey(element.Id) select element;
 
             if (removeNotPresent)
             {
                 var removableelements =
-                    (from element in Elements where elements.All(el => el.Id != element.Id) select element).ToArray();
+                    (from element in Elements.Values where elements.All(el => el.Id != element.Id) select element).ToArray();
                 foreach (var element in removableelements)
                 {
                     element.StartDeletion();
@@ -196,31 +214,31 @@ namespace md.stdl.Interaction.Notui
 
             foreach (var element in existingelements)
             {
-                var existingelement = Elements.First(el => el.Id == element.Id);
+                var existingelement = Elements[element.Id];
                 element.UpdateTo(existingelement, updateTransform: updateTransformOfRemovable || !element.Dethklok.IsRunning);
             }
             foreach (var element in newelements)
             {
                 element.Context = this;
-                Elements.Add(element);
+                Elements.Add(element.Id, element);
             }
             _elementAdded = true;
         }
 
         private void BuildFlatList()
         {
-            foreach (var element in FlatElementList)
+            foreach (var element in FlatElementList.Values)
             {
                 element.OnDeleting -= OnElementDeletion;
                 element.OnChildrenAdded -= OnElementAddition;
             }
             FlatElementList.Clear();
-            foreach (var element in Elements)
+            foreach (var element in Elements.Values)
             {
-                element.FlattenElements(FlatElementList);
+                element.FlattenElements(FlatElementList.Values.ToList());
             }
 
-            foreach (var element in FlatElementList)
+            foreach (var element in FlatElementList.Values)
             {
                 element.OnDeleting += OnElementDeletion;
                 element.OnChildrenAdded += OnElementAddition;

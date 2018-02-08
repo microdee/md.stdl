@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using md.stdl.Time;
 
 namespace md.stdl.Interaction.Notui
 {
@@ -39,12 +40,12 @@ namespace md.stdl.Interaction.Notui
             new ConcurrentDictionary<TouchContainer<IGuiElement[]>, IntersectionPoint>(new TouchEqualityComparer());
 
         public IGuiElement Parent { get; set; }
-        public List<IGuiElement> Children { get; set; } = new List<IGuiElement>();
-        public List<IInteractionBehavior> Behaviors { get; set; } = new List<IInteractionBehavior>();
+        public Dictionary<Guid, IGuiElement> Children { get; set; } = new Dictionary<Guid, IGuiElement>();
+        public List<InteractionBehavior> Behaviors { get; set; } = new List<InteractionBehavior>();
 
         public bool DeleteMe { get; set; }
-        public Stopwatch Age { get; set; } = new Stopwatch();
-        public Stopwatch Dethklok { get; set; } = new Stopwatch();
+        public StopwatchInteractive Age { get; set; } = new StopwatchInteractive();
+        public StopwatchInteractive Dethklok { get; set; } = new StopwatchInteractive();
         public AttachedValues Value { get; set; } = new AttachedValues();
         public ICloneable EnvironmentObject { get; set; }
         public ElementTransformation InteractionTransformation { get; set; } = new ElementTransformation();
@@ -105,14 +106,14 @@ namespace md.stdl.Interaction.Notui
         public event EventHandler OnDeleting;
         public event EventHandler OnFadedIn;
 
-        public void AddOrUpdateChildren(bool removeNotPresent, params IGuiElement[] children)
+        public void AddOrUpdateChildren(bool removeNotPresent = false, bool updateTransformOfRemovable = false, params IGuiElement[] children)
         {
-            var newchildren = from child in children where Children.All(c => c.Id != child.Id) && child.Id != Id select child;
-            var existingchildren = from child in children where Children.Any(c => c.Id == child.Id) && child.Id != Id select child;
+            var newchildren = from child in children where !Children.ContainsKey(child.Id) && child.Id != Id select child.Copy(child.Id, true);
+            var existingchildren = from child in children where Children.ContainsKey(child.Id) && child.Id != Id select child;
 
             if (removeNotPresent)
             {
-                var removablechildren = from child in Children where children.All(c => c.Id != child.Id) select child;
+                var removablechildren = from child in Children.Values where children.All(c => c.Id != child.Id) select child;
                 foreach (var element in removablechildren)
                 {
                     element.StartDeletion();
@@ -121,13 +122,12 @@ namespace md.stdl.Interaction.Notui
 
             foreach (var child in existingchildren)
             {
-                var existingchild = Children.First(c => c.Id == child.Id);
-                child.UpdateTo(existingchild);
+                child.UpdateTo(Children[child.Id], updateTransform: updateTransformOfRemovable || !child.Dethklok.IsRunning);
             }
             foreach (var child in newchildren)
             {
                 child.Parent = this;
-                Children.Add(child);
+                Children.Add(child.Id, child);
             }
             OnChildrenAdded?.Invoke(this, new ChildrenAddedEventArgs {Elements = children});
         }
@@ -138,7 +138,7 @@ namespace md.stdl.Interaction.Notui
         {
             var hit = Hovering.ContainsKey(touch);
             var eventargs = new TouchInteractionEventArgs
-            {
+            { 
                 Touch = touch,
                 IntersectionPoint = hit ? Hovering[touch] : null
             };
@@ -206,8 +206,7 @@ namespace md.stdl.Interaction.Notui
             if(Touched) OnInteracting?.Invoke(this, EventArgs.Empty);
             foreach (var behavior in Behaviors)
             {
-                behavior.AttachedElement = this;
-                behavior.Behave();
+                behavior.Behave(this);
             }
 
         }
@@ -223,7 +222,7 @@ namespace md.stdl.Interaction.Notui
         {
             InteractionMatrixCached = false;
             DisplayMatrixCached = false;
-            foreach (var child in Children)
+            foreach (var child in Children.Values)
                 child.InvalidateMatrices();
         }
 
@@ -267,7 +266,7 @@ namespace md.stdl.Interaction.Notui
 
         public void StartDeletion()
         {
-            foreach (var child in Children)
+            foreach (var child in Children.Values)
             {
                 child.StartDeletion();
             }

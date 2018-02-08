@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using md.stdl.Time;
 
 namespace md.stdl.Interaction.Notui
 {
@@ -41,34 +42,6 @@ namespace md.stdl.Interaction.Notui
 
     /// <inheritdoc />
     /// <summary>
-    /// Interface for defining per-frame behavior for any IGuiElement
-    /// </summary>
-    public interface IInteractionBehavior : ICopy<IInteractionBehavior>
-    {
-        /// <summary>
-        /// A unique identifier used comparing behaviors
-        /// </summary>
-        Guid Id { get; set; }
-
-        /// <summary>
-        /// The element this behavior will affect
-        /// </summary>
-        IGuiElement AttachedElement { get; set; }
-
-        /// <summary>
-        /// The method which will be executed for the given element every frame.
-        /// </summary>
-        void Behave();
-
-        /// <summary>
-        /// Copy data into another behavior
-        /// </summary>
-        /// <param name="b"></param>
-        void CopyTo(IInteractionBehavior b);
-    }
-
-    /// <inheritdoc />
-    /// <summary>
     /// A general purpose parameter holder for any IGuiElement
     /// </summary>
     public class AttachedValues : ICopy<AttachedValues>
@@ -84,16 +57,21 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// Whatever you want as long as it's clonable
         /// </summary>
-        public ICloneable Auxiliary;
+        public Dictionary<string, ICloneable> Auxiliary = new Dictionary<string, ICloneable>();
 
         public AttachedValues Copy()
         {
-            return new AttachedValues
+            var res = new AttachedValues
             {
                 Values = Values.ToArray(),
-                Texts = Texts.ToArray(),
-                Auxiliary = Auxiliary?.Clone() as ICloneable
+                Texts = Texts.ToArray()
             };
+            foreach (var kvp in Auxiliary)
+            {
+                res.Auxiliary.Add(kvp.Key, kvp.Value.Clone() as ICloneable);
+            }
+
+            return res;
         }
 
         public object Clone()
@@ -218,12 +196,12 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// Elements which will inherit the transformation of this element
         /// </summary>
-        List<IGuiElement> Children { get; set; }
+        Dictionary<Guid, IGuiElement> Children { get; set; }
 
         /// <summary>
         /// Set of interaction behaviors assigned to this element executed in the order of from first to last
         /// </summary>
-        List<IInteractionBehavior> Behaviors { get; set; }
+        List<InteractionBehavior> Behaviors { get; set; }
 
         /// <summary>
         /// Requests context to delete this element and its children
@@ -233,7 +211,7 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// Element age since creation
         /// </summary>
-        Stopwatch Age { get; set; }
+        StopwatchInteractive Age { get; set; }
 
         /// <summary>
         /// Start this stopwatch to fade out this element before deletion.
@@ -241,7 +219,7 @@ namespace md.stdl.Interaction.Notui
         /// <remarks>
         /// Metalocalypse
         /// </remarks>
-        Stopwatch Dethklok { get; set; }
+        StopwatchInteractive Dethklok { get; set; }
 
         /// <summary>
         /// Optional value to be manipulated with the element
@@ -312,8 +290,9 @@ namespace md.stdl.Interaction.Notui
         /// Implementer should do the children addition and updating and call OnChildAdded to notify context
         /// </summary>
         /// <param name="children">children to be added</param>
-        /// <param name="removeNotPresent">remove Children from elements not present in the input</param>
-        void AddOrUpdateChildren(bool removeNotPresent, params IGuiElement[] children);
+        /// <param name="removeNotPresent">Remove Children from elements not present in the input</param>
+        /// <param name="updateTransformOfRemovable">Update the transformation of </param>
+        void AddOrUpdateChildren(bool removeNotPresent = false, bool updateTransformOfRemovable = false, params IGuiElement[] children);
 
         /// <summary>
         /// Pure hittest function used by the context

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using md.stdl.Coding;
 
 namespace md.stdl.Interaction.Notui
 {
@@ -39,7 +40,7 @@ namespace md.stdl.Interaction.Notui
         public static void FlattenElements(this IGuiElement element, List<IGuiElement> flatlist)
         {
             flatlist.Add(element);
-            foreach (var child in element.Children)
+            foreach (var child in element.Children.Values)
             {
                 child.FlattenElements(flatlist);
             }
@@ -71,6 +72,14 @@ namespace md.stdl.Interaction.Notui
             element.DisplayTransformation.CopyTo(element.InteractionTransformation);
         }
 
+        public static IGuiElement Copy(this IGuiElement el, Guid id, bool copyAge = false)
+        {
+            var newel = el.Copy();
+            newel.Id = id;
+            if(copyAge) newel.Age.SetTime(el.Age.Elapsed);
+            return newel;
+        }
+
         /// <summary>
         /// Copies element data into another instance
         /// </summary>
@@ -93,7 +102,7 @@ namespace md.stdl.Interaction.Notui
             b.InteractionTransformation = a.InteractionTransformation.Copy();
             b.DisplayTransformation = a.DisplayTransformation.Copy();
 
-            b.Behaviors = a.Behaviors.Select(behav => behav.Copy()).ToList();
+            b.Behaviors = a.Behaviors.ToList();
             b.FadeInTime = a.FadeInTime;
             b.FadeOutTime = a.FadeOutTime;
 
@@ -105,7 +114,7 @@ namespace md.stdl.Interaction.Notui
 
             if (copyChildren)
             {
-                b.Children = a.Children.Select(child => child.Copy()).ToList();
+                b.Children = a.Children.Select(cid => cid, child => child.Copy());
             }
         }
 
@@ -129,31 +138,16 @@ namespace md.stdl.Interaction.Notui
             if(updateTransform) b.InteractionTransformation = a.InteractionTransformation;
             if(updateTransform) b.DisplayTransformation = a.DisplayTransformation;
 
-            foreach (var behavior in a.Behaviors)
-            {
-                if (b.Behaviors.All(behav => behav.Id != behavior.Id))
-                {
-                    b.Behaviors.Add(behavior);
-                }
-                else
-                {
-                    var bbehav = b.Behaviors.First(behav => behav.Id != behavior.Id);
-                    behavior.CopyTo(bbehav);
-                }
-            }
+
+            b.Behaviors = a.Behaviors.ToList();
             b.FadeInTime = a.FadeInTime;
             b.FadeOutTime = a.FadeOutTime;
 
             b.Value = a.Value;
             b.Parent = a.Parent;
-
+            
             if (updateChildren)
-            {
-                foreach (var aChild in a.Children)
-                {
-                    aChild.UpdateTo(b, true, updateTransform);
-                }
-            }
+                b.AddOrUpdateChildren(true, updateTransform, a.Children.Values.ToArray());
         }
     }
 }

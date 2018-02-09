@@ -92,9 +92,9 @@ namespace md.stdl.Interaction.Notui
             ViewDirection = Vector3.Normalize(Vector3.TransformNormal(Vector3.UnitZ, View));
 
             // Removing expired touches
-            var removabletouches = from touch in Touches.Values
+            var removabletouches = (from touch in Touches.Values
                 where touch.ExpireFrames > ConsiderReleasedAfter
-                select touch.Id;
+                select touch.Id).ToArray();
             foreach (var tid in removabletouches)
             {
                 Touches.TryRemove(tid, out var dummy);

@@ -113,7 +113,7 @@ namespace md.stdl.Interaction.Notui
 
             if (removeNotPresent)
             {
-                var removablechildren = from child in Children.Values where children.All(c => c.Id != child.Id) select child;
+                var removablechildren = (from child in Children.Values where children.All(c => c.Id != child.Id) select child).ToArray();
                 foreach (var element in removablechildren)
                 {
                     element.StartDeletion();

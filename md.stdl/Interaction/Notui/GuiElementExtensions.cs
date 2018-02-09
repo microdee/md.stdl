@@ -46,21 +46,44 @@ namespace md.stdl.Interaction.Notui
             }
         }
 
+        /// <summary>
+        /// Translate transformation with a delta
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="diff">Delta</param>
         public static void Translate(this ElementTransformation tr, Vector3 diff)
         {
             tr.Position += diff;
         }
+
+        /// <summary>
+        /// Resize transformation with a delta
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="diff">Delta</param>
         public static void Resize(this ElementTransformation tr, Vector3 diff)
         {
             tr.Scale += diff;
         }
-        public static void GlobalRotate(this ElementTransformation tr, Vector3 diff)
+
+        /// <summary>
+        /// Rotate transformation with global delta pitch yaw roll
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="dPitchYawRoll">Delta pitch yaw roll</param>
+        public static void GlobalRotate(this ElementTransformation tr, Vector3 dPitchYawRoll)
         {
-            tr.Rotation = tr.Rotation * Quaternion.CreateFromYawPitchRoll(diff.Y, diff.X, diff.Z);
+            tr.Rotation = tr.Rotation * Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z);
         }
-        public static void LocalRotate(this ElementTransformation tr, Vector3 diff)
+
+        /// <summary>
+        /// Rotate transformation with local delta pitch yaw roll
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="dPitchYawRoll">Delta pitch yaw roll</param>
+        public static void LocalRotate(this ElementTransformation tr, Vector3 dPitchYawRoll)
         {
-            tr.Rotation = Quaternion.CreateFromYawPitchRoll(diff.Y, diff.X, diff.Z) * tr.Rotation;
+            tr.Rotation = Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z) * tr.Rotation;
         }
 
         public static void FollowDisplay(this IGuiElement element)
@@ -72,6 +95,13 @@ namespace md.stdl.Interaction.Notui
             element.DisplayTransformation.CopyTo(element.InteractionTransformation);
         }
 
+        /// <summary>
+        /// Create a copy of an Element with specified ID
+        /// </summary>
+        /// <param name="el"></param>
+        /// <param name="id"></param>
+        /// <param name="copyAge">Copy the time of the Age stopwatch into the new element</param>
+        /// <returns></returns>
         public static IGuiElement Copy(this IGuiElement el, Guid id, bool copyAge = false)
         {
             var newel = el.Copy();

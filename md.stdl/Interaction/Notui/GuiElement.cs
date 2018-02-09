@@ -50,10 +50,12 @@ namespace md.stdl.Interaction.Notui
         /// N axis float values
         /// </summary>
         public float[] Values = new float[1];
+
         /// <summary>
         /// N number of strings
         /// </summary>
         public string[] Texts = new string[1];
+
         /// <summary>
         /// Whatever you want as long as it's clonable
         /// </summary>

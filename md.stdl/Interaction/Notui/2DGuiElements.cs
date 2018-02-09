@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using md.stdl.Mathematics;
 using VVVV.Utils.VMath;
 
@@ -6,7 +7,15 @@ namespace md.stdl.Interaction.Notui
 {
     public abstract class PlanarElement<TElement> : BaseGuiElement<TElement> where TElement : IGuiElement, new()
     {
-        protected IntersectionPoint PreparePlanarShapeHitTest(TouchContainer<IGuiElement[]> touch)
+        protected override void MainloopBeforeBehaviors()
+        {
+            foreach (var touch in Touching.Keys)
+            {
+                Touching[touch] = PreparePlanarShapeHitTest(touch);
+            }
+        }
+
+        public IntersectionPoint PreparePlanarShapeHitTest(TouchContainer<IGuiElement[]> touch)
         {
             // when first hit consider the display transformation then
             // for the rest of the interaction consider the interaction transform

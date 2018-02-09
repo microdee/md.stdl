@@ -159,14 +159,28 @@ namespace md.stdl.Interaction.Notui
             FireInteractionTouchBegin(touch);
         }
 
-        public virtual void MainLoop()
+        /// <summary>
+        /// Method invoked before anything happens in mainloop
+        /// </summary>
+        protected virtual void MainloopBegin() { }
+        /// <summary>
+        /// Method invoked before behaviors are executed and OnInteracting is invoked
+        /// </summary>
+        protected virtual void MainloopBeforeBehaviors() { }
+        /// <summary>
+        /// Method invoked at the end of mainloop
+        /// </summary>
+        protected virtual void MainloopEnd() { }
+
+        public void MainLoop()
         {
-            var endtouches = (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch);
+            MainloopBegin();
+            var endtouches = (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ToArray();
             foreach (var touch in endtouches)
             {
                 FireTouchEnd(touch);
             }
-            var endhits = (from touch in Hitting.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch);
+            var endhits = (from touch in Hitting.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ToArray();
             foreach (var touch in endhits)
             {
                 var eventargs = new TouchInteractionEventArgs
@@ -203,12 +217,13 @@ namespace md.stdl.Interaction.Notui
                 }
             }
 
+            MainloopBeforeBehaviors();
             if(Touched) OnInteracting?.Invoke(this, EventArgs.Empty);
             foreach (var behavior in Behaviors)
             {
                 behavior.Behave(this);
             }
-
+            MainloopEnd();
         }
 
         public virtual IGuiElement Copy()

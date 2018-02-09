@@ -19,6 +19,17 @@ namespace md.stdl.Coding
         public static bool IsNumeric(Type type) { return IsNumeric(type, Type.GetTypeCode(type)); }
 
         /// <summary>
+        /// Simple extension method imitating the "is" operator
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool Is(this Type a, Type b)
+        {
+            return a.IsAssignableFrom(b) || a.IsSubclassOf(b);
+        }
+
+        /// <summary>
         /// Whether the Type and TypeCode pair is numeric or not
         /// </summary>
         public static bool IsNumeric(Type type, TypeCode typeCode)

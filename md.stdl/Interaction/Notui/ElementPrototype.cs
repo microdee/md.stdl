@@ -41,7 +41,7 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// The type of the instances which are created from this prototype
         /// </summary>
-        Type InstanceType { get; }
+        public Type InstanceType { get; }
 
         /// <summary>
         /// Base constructor

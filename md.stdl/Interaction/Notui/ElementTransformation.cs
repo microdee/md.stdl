@@ -5,7 +5,7 @@ using Matrix4x4 = System.Numerics.Matrix4x4;
 
 namespace md.stdl.Interaction.Notui
 {
-    public class ElementTransformation : ICopy<ElementTransformation>
+    public class ElementTransformation : ICloneable<ElementTransformation>, IUpdateable<ElementTransformation>
     {
         /// <summary>
         /// Position of the element relative to its parent possibly in 3D world
@@ -58,16 +58,12 @@ namespace md.stdl.Interaction.Notui
             _matrix = Matrix4x4.Identity;
             Cached = true;
         }
-
-        /// <summary>
-        /// Copy stateful data from this to another element transform
-        /// </summary>
-        /// <param name="destination">The receiving end</param>
-        public void CopyTo(ElementTransformation destination)
+        
+        public void UpdateFrom(ElementTransformation other)
         {
-            destination.Position = Position;
-            destination.Rotation = Rotation;
-            destination.Scale = Scale;
+            Position = other.Position;
+            Rotation = other.Rotation;
+            Scale = other.Scale;
         }
 
         /// <summary>
@@ -174,7 +170,7 @@ namespace md.stdl.Interaction.Notui
         public ElementTransformation Copy()
         {
             var res = new ElementTransformation();
-            CopyTo(res);
+            res.UpdateFrom(this);
             return res;
         }
     }

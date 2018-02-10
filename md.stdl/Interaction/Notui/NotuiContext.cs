@@ -60,18 +60,18 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// All the touches in this context
         /// </summary>
-        public ConcurrentDictionary<int, TouchContainer<IGuiElement[]>> Touches { get; } =
-            new ConcurrentDictionary<int, TouchContainer<IGuiElement[]>>();
+        public ConcurrentDictionary<int, TouchContainer<NotuiElement[]>> Touches { get; } =
+            new ConcurrentDictionary<int, TouchContainer<NotuiElement[]>>();
 
         /// <summary>
         /// Elements in this context without a parent (or Root elements)
         /// </summary>
-        public Dictionary<Guid, IGuiElement> Elements { get; } = new Dictionary<Guid, IGuiElement>();
+        public Dictionary<string, NotuiElement> Elements { get; } = new Dictionary<string, NotuiElement>();
 
         /// <summary>
         /// All the elements in this context including the children of the root elements recursively
         /// </summary>
-        public Dictionary<Guid, IGuiElement> FlatElementList { get; } = new Dictionary<Guid, IGuiElement>();
+        public Dictionary<string, NotuiElement> FlatElementList { get; } = new Dictionary<string, NotuiElement>();
 
         public NotuiContext()
         {
@@ -109,7 +109,7 @@ namespace md.stdl.Interaction.Notui
 
             // Scan through elements if any of them wants to be killed or if there are new ones
             bool rebuild = false;
-            if (_elementDeleted)
+            if (_elementsDeleted)
             {
                 foreach (var element in FlatElementList.Values)
                 {
@@ -118,26 +118,26 @@ namespace md.stdl.Interaction.Notui
                     else element.Parent.Children.Remove(element.Id);
                 }
                 rebuild = true;
-                _elementDeleted = false;
+                _elementsDeleted = false;
             }
-            if (_elementAdded)
+            if (_elementsUpdated)
             {
                 rebuild = true;
-                _elementAdded = false;
+                _elementsUpdated = false;
             }
             if(rebuild) BuildFlatList();
 
             // Process input touches
             foreach (var touch in inputTouches)
             {
-                TouchContainer<IGuiElement[]> tt;
+                TouchContainer<NotuiElement[]> tt;
                 if (Touches.ContainsKey(touch.Id))
                 {
                     tt = Touches[touch.Id];
                 }
                 else
                 {
-                    tt = new TouchContainer<IGuiElement[]>(touch.Id) { Force = touch.Force };
+                    tt = new TouchContainer<NotuiElement[]>(touch.Id) { Force = touch.Force };
                     Touches.TryAdd(tt.Id, tt);
                 }
                 tt.Update(touch.Point, deltaT);
@@ -146,7 +146,6 @@ namespace md.stdl.Interaction.Notui
             // preparing elements for hittest
             foreach (var element in FlatElementList.Values)
             {
-                element.Context = this;
                 var elpos = Vector4.Transform(new Vector4(element.DisplayTransformation.Position, 1), View * aspproj);
                 element.Depth = elpos.Z / elpos.W;
                 element.Hovering.Clear();
@@ -197,32 +196,36 @@ namespace md.stdl.Interaction.Notui
             });
         }
 
-        public void AddOrUpdateElements(bool removeNotPresent, bool updateTransformOfRemovable, params IGuiElement[] elements)
+        public void AddOrUpdateElements(bool removeNotPresent, bool updateTransformOfRemovable, params ElementPrototype[] elements)
         {
-            var newelements = from element in elements where !Elements.ContainsKey(element.Id) select element;
-            var existingelements = from element in elements where Elements.ContainsKey(element.Id) select element;
 
             if (removeNotPresent)
             {
-                var removableelements =
-                    (from element in Elements.Values where elements.All(el => el.Id != element.Id) select element).ToArray();
-                foreach (var element in removableelements)
+                var removables = (from el in FlatElementList.Values where elements.All(c => c.Id != el.Id) select el).ToArray();
+                foreach (var el in removables)
                 {
-                    element.StartDeletion();
+                    el.StartDeletion();
                 }
             }
 
-            foreach (var element in existingelements)
+            foreach (var el in elements)
             {
-                var existingelement = Elements[element.Id];
-                element.UpdateTo(existingelement, updateTransform: updateTransformOfRemovable || !element.Dethklok.IsRunning);
+                if (FlatElementList.ContainsKey(el.Id))
+                    FlatElementList[el.Id].UpdateFrom(el);
+                else
+                {
+                    if (el.Parent == null)
+                    {
+                        Elements.Add(el.Id, el.Instantiate(this));
+                        continue;
+                    }
+                    if (FlatElementList.ContainsKey(el.Parent.Id))
+                    {
+                        FlatElementList[el.Parent.Id].UpdateChildren(false, el);
+                    }
+                }
             }
-            foreach (var element in newelements)
-            {
-                element.Context = this;
-                Elements.Add(element.Id, element);
-            }
-            _elementAdded = true;
+            _elementsUpdated = true;
         }
 
         private void BuildFlatList()
@@ -230,32 +233,32 @@ namespace md.stdl.Interaction.Notui
             foreach (var element in FlatElementList.Values)
             {
                 element.OnDeleting -= OnElementDeletion;
-                element.OnChildrenAdded -= OnElementAddition;
+                element.OnChildrenUpdated -= OnElementUpdate;
             }
             FlatElementList.Clear();
             foreach (var element in Elements.Values)
             {
-                element.FlattenElements(FlatElementList.Values.ToList());
+                element.FlattenElements(FlatElementList);
             }
 
             foreach (var element in FlatElementList.Values)
             {
                 element.OnDeleting += OnElementDeletion;
-                element.OnChildrenAdded += OnElementAddition;
+                element.OnChildrenUpdated += OnElementUpdate;
             }
         }
 
-        private bool _elementDeleted;
-        private bool _elementAdded;
+        private bool _elementsDeleted;
+        private bool _elementsUpdated;
 
-        private void OnElementAddition(object sender, ChildrenAddedEventArgs childrenAddedEventArgs)
+        private void OnElementUpdate(object sender, ChildrenUpdatedEventArgs childrenAddedEventArgs)
         {
-            _elementAdded = true;
+            _elementsUpdated = true;
         }
 
         private void OnElementDeletion(object sender, EventArgs eventArgs)
         {
-            _elementDeleted = true;
+            _elementsDeleted = true;
         }
 
         private static IEnumerable<IntersectionPoint> GetTopInteractableElements(IEnumerable<IntersectionPoint> orderedhitinsecs)

@@ -28,9 +28,9 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// The method which will be executed for the given element every frame.
         /// </summary>
-        public abstract void Behave(IGuiElement element);
+        public abstract void Behave(NotuiElement element);
 
-        public T GetState<T>(IGuiElement element)
+        public T GetState<T>(NotuiElement element) where T : AuxiliaryObject
         {
             try
             {
@@ -43,14 +43,14 @@ namespace md.stdl.Interaction.Notui
             }
         }
 
-        public void SetState(IGuiElement element, ICloneable value)
+        public void SetState(NotuiElement element, AuxiliaryObject value)
         {
             if (IsStateAvailable(element))
                 element.Value.Auxiliary[BehaviorStatePrefix + Id] = value;
             else element.Value.Auxiliary.Add(BehaviorStatePrefix + Id, value);
         }
 
-        public bool IsStateAvailable(IGuiElement element) => element.Value.Auxiliary.ContainsKey(BehaviorStatePrefix + Id);
+        public bool IsStateAvailable(NotuiElement element) => element.Value.Auxiliary.ContainsKey(BehaviorStatePrefix + Id);
     }
 
     /// <inheritdoc />
@@ -71,12 +71,12 @@ namespace md.stdl.Interaction.Notui
         [BehaviorParameter]
         public bool UseInteractionTransform { get; set; }
 
-        private ElementTransformation SelectTransform(IGuiElement element)
+        private ElementTransformation SelectTransform(NotuiElement element)
         {
             return UseInteractionTransform ? element.InteractionTransformation : element.DisplayTransformation;
         }
 
-        public override void Behave(IGuiElement element)
+        public override void Behave(NotuiElement element)
         {
             if(!element.Touched) return;
             var mindist = element.Children.Values.Min(child => SelectTransform(child).GetViewPosition(child.Context).Z);
@@ -98,14 +98,16 @@ namespace md.stdl.Interaction.Notui
     /// </summary>
     public class MultitouchCardsBehavior : InteractionBehavior
     {
-        public class BehaviorState : ICloneable
+        public class BehaviorState : AuxiliaryObject
         {
-            public object Clone()
+            public override AuxiliaryObject Copy()
             {
-                return new BehaviorState
-                {
+                throw new NotImplementedException();
+            }
 
-                };
+            public override void UpdateFrom(AuxiliaryObject other)
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -127,7 +129,7 @@ namespace md.stdl.Interaction.Notui
         [BehaviorParameter]
         public bool Pivotable { get; set; }
 
-        public override void Behave(IGuiElement element)
+        public override void Behave(NotuiElement element)
         {
             throw new NotImplementedException();
         }

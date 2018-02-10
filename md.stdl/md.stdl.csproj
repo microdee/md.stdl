@@ -135,12 +135,12 @@
     <Compile Include="Interaction\InputHelpers.cs" />
     <Compile Include="Interaction\Keyboard.cs" />
     <Compile Include="Interaction\Mouse.cs" />
-    <Compile Include="Interaction\Notui\2DGuiElements.cs" />
+    <Compile Include="Interaction\Notui\2DBasicElements.cs" />
     <Compile Include="Interaction\Notui\NotuiElement.cs" />
     <Compile Include="Interaction\Notui\ElementCommon.cs" />
     <Compile Include="Interaction\Notui\ElementTransformation.cs" />
     <Compile Include="Interaction\Notui\ElementPrototype.cs" />
-    <Compile Include="Interaction\Notui\GuiElementExtensions.cs" />
+    <Compile Include="Interaction\Notui\NotuiExtensions.cs" />
     <Compile Include="Interaction\Notui\InteractionBehavior.cs" />
     <Compile Include="Interaction\Notui\NotuiContext.cs" />
     <Compile Include="Interaction\RawInputService.cs" />

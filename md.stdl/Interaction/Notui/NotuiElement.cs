@@ -44,6 +44,28 @@ namespace md.stdl.Interaction.Notui
         public bool Active { get; set; }
         public bool Transparent { get; set; }
         public List<InteractionBehavior> Behaviors { get; set; } = new List<InteractionBehavior>();
+        public AttachedValues Value { get; set; }
+        public AuxiliaryObject EnvironmentObject { get; set; }
+
+        public ElementTransformation InteractionTransformation { get; set; } = new ElementTransformation();
+        public ElementTransformation DisplayTransformation
+        {
+            get => _displayTransformation;
+            set
+            {
+                if (_displayTransformation == null)
+                {
+                    value.OnChange += (sender, args) => InvalidateMatrices();
+                    _displayTransformation = value;
+                    return;
+                }
+                if (value.GetHashCode() != _displayTransformation.GetHashCode())
+                {
+                    value.OnChange += (sender, args) => InvalidateMatrices();
+                }
+                _displayTransformation = value;
+            }
+        }
 
         /// <summary>
         /// The context which this element is assigned to.
@@ -128,27 +150,6 @@ namespace md.stdl.Interaction.Notui
         /// Metalocalypse
         /// </remarks>
         public StopwatchInteractive Dethklok { get; set; } = new StopwatchInteractive();
-        public AttachedValues Value { get; set; }
-        public AuxiliaryObject EnvironmentObject { get; set; }
-        public ElementTransformation InteractionTransformation { get; set; } = new ElementTransformation();
-        public ElementTransformation DisplayTransformation
-        {
-            get => _displayTransformation;
-            set
-            {
-                if (_displayTransformation == null)
-                {
-                    value.OnChange += (sender, args) => InvalidateMatrices();
-                    _displayTransformation = value;
-                    return;
-                }
-                if (value.GetHashCode() != _displayTransformation.GetHashCode())
-                {
-                    value.OnChange += (sender, args) => InvalidateMatrices();
-                }
-                _displayTransformation = value;
-            }
-        }
 
         /// <summary>
         /// Was interaction matrix already calculated since last request.
@@ -159,6 +160,38 @@ namespace md.stdl.Interaction.Notui
         /// Was display matrix already calculated since last request.
         /// </summary>
         public bool DisplayMatrixCached { get; set; }
+
+        /// <summary>
+        /// Absolute world interaction transformation.
+        /// </summary>
+        public Matrix4x4 InteractionMatrix
+        {
+            get
+            {
+                if (!InteractionMatrixCached)
+                {
+                    _interactionMatrix = GetInteractionTransform();
+                    InteractionMatrixCached = true;
+                }
+                return _interactionMatrix;
+            }
+        }
+
+        /// <summary>
+        /// Absolute world display transformation.
+        /// </summary>
+        public Matrix4x4 DisplayMatrix
+        {
+            get
+            {
+                if (!DisplayMatrixCached)
+                {
+                    _displayMatrix = GetDisplayTransform();
+                    DisplayMatrixCached = true;
+                }
+                return _displayMatrix;
+            }
+        }
 
         /// <summary>
         /// Pure function for getting the matrix of the display transformation
@@ -213,38 +246,6 @@ namespace md.stdl.Interaction.Notui
         public void FollowInteraction(IElementCommon element)
         {
             InteractionTransformation.UpdateFrom(element.InteractionTransformation);
-        }
-
-        /// <summary>
-        /// Absolute world interaction transformation.
-        /// </summary>
-        public Matrix4x4 InteractionMatrix
-        {
-            get
-            {
-                if (!InteractionMatrixCached)
-                {
-                    _interactionMatrix = GetInteractionTransform();
-                    InteractionMatrixCached = true;
-                }
-                return _interactionMatrix;
-            }
-        }
-
-        /// <summary>
-        /// Absolute world display transformation.
-        /// </summary>
-        public Matrix4x4 DisplayMatrix
-        {
-            get
-            {
-                if (!DisplayMatrixCached)
-                {
-                    _displayMatrix = GetDisplayTransform();
-                    DisplayMatrixCached = true;
-                }
-                return _displayMatrix;
-            }
         }
 
         /// <summary>

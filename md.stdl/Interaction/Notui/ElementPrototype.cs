@@ -22,9 +22,9 @@ namespace md.stdl.Interaction.Notui
         public bool Transparent { get; set; }
         public float FadeOutTime { get; set; }
         public float FadeInTime { get; set; }
-        public ElementTransformation InteractionTransformation { get; set; }
-        public ElementTransformation DisplayTransformation { get; set; }
-        public List<InteractionBehavior> Behaviors { get; set; }
+        public ElementTransformation InteractionTransformation { get; set; } = new ElementTransformation();
+        public ElementTransformation DisplayTransformation { get; set; } = new ElementTransformation();
+        public List<InteractionBehavior> Behaviors { get; set; } = new List<InteractionBehavior>();
         public AttachedValues Value { get; set; }
         public AuxiliaryObject EnvironmentObject { get; set; }
 
@@ -72,7 +72,7 @@ namespace md.stdl.Interaction.Notui
         {
             InstanceType = fromInstance.GetType();
             this.UpdateCommon(fromInstance);
-            Value = fromInstance.Value.Copy();
+            Value = fromInstance.Value?.Copy();
             EnvironmentObject = fromInstance.EnvironmentObject.Copy();
             Parent = fromInstance.Parent.Prototype;
 

@@ -234,9 +234,6 @@ namespace md.stdl.Interaction.Notui
 
             foreach (var element in FlatElementList.Values)
             {
-                // TODO: less ugly
-                if (element.Parent == null && element.Prototype.Parent != null)
-                    element.Parent = FlatElementList[element.Prototype.Parent.Id];
                 element.OnDeleting += OnElementDeletion;
                 element.OnChildrenUpdated += OnElementUpdate;
             }

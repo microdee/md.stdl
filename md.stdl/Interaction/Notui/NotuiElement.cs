@@ -503,6 +503,7 @@ namespace md.stdl.Interaction.Notui
             this.UpdateCommon(prototype);
             Value = prototype.Value?.Copy();
             Context = context;
+            Parent = parent;
 
             EnvironmentObject = prototype.EnvironmentObject?.Copy();
 

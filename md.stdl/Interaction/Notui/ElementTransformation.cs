@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using md.stdl.Mathematics;
 using Matrix4x4 = System.Numerics.Matrix4x4;
@@ -16,7 +17,7 @@ namespace md.stdl.Interaction.Notui
             set
             {
                 _position = value;
-                OnChange?.Invoke(this, EventArgs.Empty);
+                InvokeChange();
                 InvalidateCache();
             }
         }
@@ -31,7 +32,7 @@ namespace md.stdl.Interaction.Notui
             set
             {
                 _scale = value;
-                OnChange?.Invoke(this, EventArgs.Empty);
+                InvokeChange();
                 InvalidateCache();
             }
         }
@@ -45,7 +46,7 @@ namespace md.stdl.Interaction.Notui
             set
             {
                 _rotation = value;
-                OnChange?.Invoke(this, EventArgs.Empty);
+                InvokeChange();
                 InvalidateCache();
             }
         }
@@ -150,12 +151,40 @@ namespace md.stdl.Interaction.Notui
         }
 
         /// <summary>
-        /// Event fired when position, rotation or scale is changed.
+        /// Notification fired when position, rotation or scale is changed.
         /// </summary>
+        /// <param name="id">a unique id of the subscriber</param>
+        /// <param name="action">A single argument action to be run where that argument is the sender transformation</param>
         /// <remarks>
         /// This will fire on all assignments at position, rotation or scale. Do not do anything expensive here. This is mainly used to invalidate matrix caches on GuiElements
         /// </remarks>
-        public event EventHandler OnChange;
+        public void SubscribeToChange(string id, Action<ElementTransformation> action)
+        {
+            if (_onChangeActions.ContainsKey(id))
+                _onChangeActions[id] = action;
+            else _onChangeActions.Add(id, action);
+        }
+
+        /// <summary>
+        /// Unsubscribe from transformation change
+        /// </summary>
+        /// <param name="id">a unique id of the subscriber</param>
+        public void UnsubscribeFromChange(string id)
+        {
+            if (_onChangeActions.ContainsKey(id))
+                _onChangeActions.Remove(id);
+        }
+
+        private void InvokeChange()
+        {
+            foreach (var action in _onChangeActions.Values)
+            {
+                action(this);
+            }
+        }
+
+        private readonly Dictionary<string, Action<ElementTransformation>> _onChangeActions =
+            new Dictionary<string, Action<ElementTransformation>>();
 
         private Matrix4x4 _matrix;
         private Vector3 _position;

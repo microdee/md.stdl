@@ -72,6 +72,7 @@ namespace md.stdl.Interaction.Notui
         {
             InstanceType = fromInstance.GetType();
             this.UpdateCommon(fromInstance);
+
             Value = fromInstance.Value?.Copy();
             EnvironmentObject = fromInstance.EnvironmentObject.Copy();
             Parent = fromInstance.Parent.Prototype;

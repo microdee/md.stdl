@@ -323,7 +323,10 @@ namespace md.stdl.Interaction.Notui
             {
                 if(Children.ContainsKey(child.Id))
                     Children[child.Id].UpdateFrom(child);
-                else if(child.Id != Id) Children.Add(child.Id, child.Instantiate(Context, this));
+                else if(child.Id != Id)
+                {
+                    Children.Add(child.Id, child.Instantiate(Context, this));
+                }
             }
 
             OnChildrenUpdated?.Invoke(this, new ChildrenUpdatedEventArgs {Elements = children});
@@ -467,7 +470,7 @@ namespace md.stdl.Interaction.Notui
         public void UpdateFrom(ElementPrototype other)
         {
             this.UpdateCommon(other);
-            Value.UpdateFrom(other.Value);
+            Value?.UpdateFrom(other.Value);
             UpdateChildren(true, other.Children.Values.ToArray());
         }
 
@@ -475,7 +478,7 @@ namespace md.stdl.Interaction.Notui
         public void UpdateFrom(NotuiElement other)
         {
             UpdateSimple(other);
-            Value.UpdateFrom(other.Value);
+            Value?.UpdateFrom(other.Value);
             Children.Clear();
 
             OnChildrenUpdated?.Invoke(this, new ChildrenUpdatedEventArgs
@@ -501,7 +504,7 @@ namespace md.stdl.Interaction.Notui
             Value = prototype.Value?.Copy();
             Context = context;
 
-            EnvironmentObject = prototype.EnvironmentObject.Copy();
+            EnvironmentObject = prototype.EnvironmentObject?.Copy();
 
             foreach (var child in prototype.Children.Values)
             {

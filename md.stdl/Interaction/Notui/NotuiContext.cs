@@ -196,12 +196,13 @@ namespace md.stdl.Interaction.Notui
             });
         }
 
+        // TODO: remove obsolete updateTransformOfRemovable
         public void AddOrUpdateElements(bool removeNotPresent, bool updateTransformOfRemovable, params ElementPrototype[] elements)
         {
 
             if (removeNotPresent)
             {
-                var removables = (from el in FlatElementList.Values where elements.All(c => c.Id != el.Id) select el).ToArray();
+                var removables = (from el in Elements.Values where elements.All(c => c.Id != el.Id) select el).ToArray();
                 foreach (var el in removables)
                 {
                     el.StartDeletion();
@@ -210,20 +211,10 @@ namespace md.stdl.Interaction.Notui
 
             foreach (var el in elements)
             {
-                if (FlatElementList.ContainsKey(el.Id))
-                    FlatElementList[el.Id].UpdateFrom(el);
+                if (Elements.ContainsKey(el.Id))
+                    Elements[el.Id].UpdateFrom(el);
                 else
-                {
-                    if (el.Parent == null)
-                    {
-                        Elements.Add(el.Id, el.Instantiate(this));
-                        continue;
-                    }
-                    if (FlatElementList.ContainsKey(el.Parent.Id))
-                    {
-                        FlatElementList[el.Parent.Id].UpdateChildren(false, el);
-                    }
-                }
+                    Elements.Add(el.Id, el.Instantiate(this));
             }
             _elementsUpdated = true;
         }
@@ -243,6 +234,9 @@ namespace md.stdl.Interaction.Notui
 
             foreach (var element in FlatElementList.Values)
             {
+                // TODO: less ugly
+                if (element.Parent == null && element.Prototype.Parent != null)
+                    element.Parent = FlatElementList[element.Prototype.Parent.Id];
                 element.OnDeleting += OnElementDeletion;
                 element.OnChildrenUpdated += OnElementUpdate;
             }

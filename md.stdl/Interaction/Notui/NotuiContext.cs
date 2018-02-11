@@ -146,8 +146,9 @@ namespace md.stdl.Interaction.Notui
             // preparing elements for hittest
             foreach (var element in FlatElementList.Values)
             {
-                var elpos = Vector4.Transform(new Vector4(element.DisplayTransformation.Position, 1), View * aspproj);
-                element.Depth = elpos.Z / elpos.W;
+                //Matrix4x4.Decompose(element.DisplayMatrix, out var aelscale, out var aelrot, out var aelpos);
+                //var elpos = Vector4.Transform(new Vector4(aelpos, 1), View * aspproj);
+                //element.Depth = elpos.Z / elpos.W;
                 element.Hovering.Clear();
             }
 
@@ -169,7 +170,11 @@ namespace md.stdl.Interaction.Notui
                     })
                     .Where(insec => insec != null)
                     .Where(insec => insec.Element.Active)
-                    .OrderBy(insec => insec.Element.Depth);
+                    .OrderBy(insec =>
+                    {
+                        var screenpos = Vector4.Transform(new Vector4(insec.WorldSpace, 1), View * aspproj);
+                        return screenpos.Z / screenpos.W;
+                    });
 
                 // Sift through ordered intersection list until the furthest non-transparent element
                 // or in other words ignore all intersected elements which are further away from the closest non-transparent element

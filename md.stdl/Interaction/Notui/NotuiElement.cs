@@ -75,14 +75,6 @@ namespace md.stdl.Interaction.Notui
         public bool Touched { get; set; }
 
         /// <summary>
-        /// The depth of this element in the touch context. Lowest depth value is the top element, highest is the bottom one.
-        /// </summary>
-        /// <remarks>
-        /// This is not the same as the Z component of an element's position. When processing the elements only this value is used to determine their order from lowest to highest.
-        /// </remarks>
-        public float Depth { get; set; }
-
-        /// <summary>
         /// Element fading from 0 (faded out) to 1 (faded in)
         /// </summary>
         public float ElementFade { get; set; }

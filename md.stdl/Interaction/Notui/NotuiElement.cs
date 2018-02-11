@@ -34,7 +34,6 @@ namespace md.stdl.Interaction.Notui
     {
         private Matrix4x4 _interactionMatrix;
         private Matrix4x4 _displayMatrix;
-        private ElementTransformation _displayTransformation = new ElementTransformation();
         private bool _onFadedInInvoked;
 
         public string Name { get; set; }
@@ -48,24 +47,7 @@ namespace md.stdl.Interaction.Notui
         public AuxiliaryObject EnvironmentObject { get; set; }
 
         public ElementTransformation InteractionTransformation { get; set; } = new ElementTransformation();
-        public ElementTransformation DisplayTransformation
-        {
-            get => _displayTransformation;
-            set
-            {
-                if (_displayTransformation == null)
-                {
-                    value.OnChange += (sender, args) => InvalidateMatrices();
-                    _displayTransformation = value;
-                    return;
-                }
-                if (value.GetHashCode() != _displayTransformation.GetHashCode())
-                {
-                    value.OnChange += (sender, args) => InvalidateMatrices();
-                }
-                _displayTransformation = value;
-            }
-        }
+        public ElementTransformation DisplayTransformation { get; set; } = new ElementTransformation();
 
         /// <summary>
         /// The context which this element is assigned to.
@@ -389,6 +371,9 @@ namespace md.stdl.Interaction.Notui
         /// </remarks>
         public void MainLoop()
         {
+            InteractionTransformation.SubscribeToChange(Id, transformation => InvalidateMatrices());
+            DisplayTransformation.SubscribeToChange(Id, transformation => InvalidateMatrices());
+
             MainloopBegin();
             var endtouches = (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ToArray();
             foreach (var touch in endtouches)

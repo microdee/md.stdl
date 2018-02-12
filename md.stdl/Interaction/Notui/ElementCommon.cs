@@ -91,6 +91,7 @@ namespace md.stdl.Interaction.Notui
 
         public void UpdateFrom(AttachedValues other)
         {
+            if(other == null) return;
             Values = other.Values.ToArray();
             Texts = other.Texts.ToArray();
             var removable = (from auxkey in Auxiliary.Keys where !other.Auxiliary.ContainsKey(auxkey) select auxkey).ToArray();

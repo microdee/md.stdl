@@ -177,8 +177,11 @@ namespace md.stdl.Interaction.Notui.Behaviors
 
         private Vector3 GetTouchWorldVelocity(TouchContainer touch, Matrix4x4 plane, NotuiContext context, out Vector3 currpos, out Vector3 prevpos)
         {
+            // get planar coords for current touch position
             var hit = Intersections.PlaneRay(touch.WorldPosition, touch.ViewDir, plane, out var capos, out var crpos);
             currpos = crpos;
+
+            // get planar coords for the previous touch position
             var prevpoint = touch.Point - touch.Velocity;
             Coordinates.GetPointWorldPosDir(prevpoint, context.ProjectionWithAspectRatioInverse, context.ViewInverse, out var popos, out var pdir);
             var phit = Intersections.PlaneRay(popos, pdir, plane, out var papos, out var prpos);
@@ -201,22 +204,23 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 disptr.Translate(worldvel);
                 if (LimitTranslation)
                     disptr.Position = Intersections.BoxPointLimit(BoundingBoxMin, BoundingBoxMax, disptr.Position);
-
-                element.UpdateFromDisplayToInteraction(element);
             }
-
             if (Scalable)
             {
                 var sclvel = 1 + state.DeltaSize * ScalingCoeffitient;
+
+                // save previous scale
                 var scl = disptr.Scale;
                 disptr.Resize(new Vector3(sclvel));
+
+                // if end result is outside boundaries reset it to previous scale
                 if (disptr.Scale.Length() > ScaleMinMax.Y || disptr.Scale.Length() < ScaleMinMax.X)
                     disptr.Scale = scl;
-                element.UpdateFromDisplayToInteraction(element);
-            }
 
+            }
             if (Pivotable)
             {
+                // see if rotation is still inside boundaries
                 var targetrot = state.TotalAngle + state.DeltaAngle * RotationCoeffitient;
                 if (!LimitRotation || RotationMinMax.X <= targetrot && targetrot <= RotationMinMax.Y)
                 {
@@ -224,6 +228,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
 
                     var worldaxis = Vector3.TransformNormal(Vector3.UnitZ, usedplane);
                     var worldrot = Quaternion.CreateFromAxisAngle(worldaxis, state.DeltaAngle * RotationCoeffitient);
+
                     if (element.Parent != null)
                     {
                         Matrix4x4.Invert(element.Parent.DisplayMatrix, out var invparenttr);
@@ -234,11 +239,13 @@ namespace md.stdl.Interaction.Notui.Behaviors
                     element.UpdateFromDisplayToInteraction(element);
                 }
             }
+            element.UpdateFromDisplayToInteraction(element);
         }
 
         private void FlickProgress(BehaviorState state, NotuiContext context)
         {
             var frametime = context.DeltaTime * FlickTime;
+            var fade = Min(Max(1 / frametime, 0), 1);
             if (FlickTime < context.DeltaTime)
             {
                 state.DeltaPos = Vector2.Zero;
@@ -247,9 +254,9 @@ namespace md.stdl.Interaction.Notui.Behaviors
             }
             else
             {
-                state.DeltaPos = Vector2.Lerp(state.DeltaPos, Vector2.Zero, 1/frametime);
-                state.DeltaAngle *= 1 / frametime;
-                state.DeltaSize *= 1 / frametime;
+                state.DeltaPos = Vector2.Lerp(state.DeltaPos, Vector2.Zero, fade);
+                state.DeltaAngle *= fade;
+                state.DeltaSize *= fade;
             }
         }
 
@@ -262,6 +269,15 @@ namespace md.stdl.Interaction.Notui.Behaviors
             }
         }
 
+        /// <summary>
+        /// This was "stolen" from elliot woods. I'm not sure how it works but it does.
+        /// </summary>
+        /// <param name="curr0">Current first point</param>
+        /// <param name="prev0">Previous first point</param>
+        /// <param name="curr1">Current second point</param>
+        /// <param name="prev1">Previos second point</param>
+        /// <param name="tr">Outpur matrix</param>
+        /// <returns>Delta XY, delta angle, delta scale</returns>
         private Vector4 CalcDeltaMatrix(Vector2 curr0, Vector2 prev0, Vector2 curr1, Vector2 prev1, out Matrix4x4 tr)
         {
             var prev0x = prev0.X;
@@ -297,6 +313,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
 
         public override void Behave(NotuiElement element)
         {
+            // Select the plane of interaction
             _actualPlaneSelection = SlideInSelectedPlane == SelectedPlane.ParentPlane ?
                 (element.Parent != null ? SelectedPlane.ParentPlane : SelectedPlane.ViewAligned) :
                 SlideInSelectedPlane;
@@ -320,44 +337,58 @@ namespace md.stdl.Interaction.Notui.Behaviors
                                 Matrix4x4.CreateTranslation(element.DisplayMatrix.Translation);
                     break;
             }
-
+            
+            // Get state from element
             var hasstate = IsStateAvailable(element);
             var currstate = hasstate ? GetState<BehaviorState>(element) : new BehaviorState();
 
+            // Merge touches from children if SlideOnChildrenInteracting is true
             var touches = element.Touching.Keys.ToList();
             if(SlideOnChildrenInteracting)
                 AddChildrenTouches(element, touches);
 
+            // Do interaction if there are minimum specified touches
             if(touches.Count >= MinimumTouches)
             {
+                // if Draggable is true and there's only 1 touch do a simple translation move only
                 if (Draggable && element.Touching.Count == 1)
                 {
                     var relvel = GetTouchWorldVelocity(element.Touching.Keys.First(), usedplane, element.Context,
                         out var crelpos, out var prelpos);
                     currstate.DeltaPos = relvel.xy();
 
+                    // reset delta size and angle 
+                    currstate.DeltaAngle = 0;
+                    currstate.DeltaSize = 0;
+
+                    // Finalize
                     Move(element, currstate, usedplane);
                     FlickProgress(currstate, element.Context);
                     SetState(element, currstate);
                     return;
                 }
                 
-
+                // If Draggable is off but Pivotable or Scalable is still on do a rotation around the element center
                 if (!Draggable && element.Touching.Count == 1)
                 {
                     GetTouchWorldVelocity(element.Touching.Keys.First(), usedplane, element.Context,
                         out var crelpos, out var prelpos);
                     var deltarn = CalcDeltaMatrix(crelpos.xy(), prelpos.xy(), crelpos.xy() * -1, prelpos.xy() * -1, out var deltarntr);
+
+                    // reset translation delta
                     currstate.DeltaPos = Vector2.Zero;
+
                     currstate.DeltaAngle = deltarn.Z;
                     currstate.DeltaSize = deltarn.W;
 
+                    // Finalize
                     Move(element, currstate, usedplane);
                     FlickProgress(currstate, element.Context);
                     SetState(element, currstate);
                     return;
                 }
 
+                // If there are more than one touches see which 2 moves the fastest and use those for scaling/moving
                 var orderedbyfastest = touches.OrderByDescending(t => t.Velocity.LengthSquared()).ToArray();
                 var t0 = orderedbyfastest[0];
                 var t1 = orderedbyfastest[1];
@@ -369,6 +400,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 currstate.DeltaAngle = delta.Z;
                 currstate.DeltaSize = delta.W;
             }
+            // Finalize
             Move(element, currstate, usedplane);
             FlickProgress(currstate, element.Context);
             SetState(element, currstate);

@@ -204,7 +204,7 @@ namespace md.stdl.Interaction.Notui
 
         public void UpdateFromDisplayToInteraction(IElementCommon element)
         {
-            InteractionTransformation.UpdateFrom(element.InteractionTransformation);
+            InteractionTransformation.UpdateFrom(element.DisplayTransformation);
         }
 
         public void UpdateFromInteractionToDisplay(IElementCommon element)

@@ -16,10 +16,10 @@ namespace md.stdl.Interaction.Notui
     }
 
     /// <summary>
-    /// Abstract class for defining per-frame behavior for any IGuiElement.
+    /// Abstract class for defining per-frame behavior for NotuiElements.
     /// </summary>
     /// <remarks>
-    /// Unlike IGuiElements behaviors should not be stateful. You can store states in 
+    /// Unlike NotuiElements behaviors should not be stateful. You can store states in the Auxiliary object dictionary of an element
     /// </remarks>
     public abstract class InteractionBehavior
     {
@@ -37,6 +37,8 @@ namespace md.stdl.Interaction.Notui
 
         public T GetState<T>(NotuiElement element) where T : AuxiliaryObject
         {
+            if (element.Value == null)
+                element.Value = new AttachedValues();
             try
             {
                 return (T)element.Value.Auxiliary[BehaviorStatePrefix + Id];
@@ -50,11 +52,18 @@ namespace md.stdl.Interaction.Notui
 
         public void SetState(NotuiElement element, AuxiliaryObject value)
         {
+            if (element.Value == null)
+                element.Value = new AttachedValues();
             if (IsStateAvailable(element))
                 element.Value.Auxiliary[BehaviorStatePrefix + Id] = value;
             else element.Value.Auxiliary.Add(BehaviorStatePrefix + Id, value);
         }
 
-        public bool IsStateAvailable(NotuiElement element) => element.Value.Auxiliary.ContainsKey(BehaviorStatePrefix + Id);
+        public bool IsStateAvailable(NotuiElement element)
+        {
+            if(element.Value == null)
+                element.Value = new AttachedValues();
+            return element.Value.Auxiliary.ContainsKey(BehaviorStatePrefix + Id);
+        }
     }
 }

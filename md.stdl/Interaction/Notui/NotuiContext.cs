@@ -43,7 +43,19 @@ namespace md.stdl.Interaction.Notui
         /// Very optional aspect ratio correction matrix a'la vvvv
         /// </summary>
         public Matrix4x4 AspectRatio { get; set; } = Matrix4x4.Identity;
-
+        
+        /// <summary>
+        /// Inverse of view transform
+        /// </summary>
+        public Matrix4x4 ViewInverse { get; private set; } = Matrix4x4.Identity;
+        /// <summary>
+        /// Inverse of projection transform combined with aspect ratio
+        /// </summary>
+        public Matrix4x4 ProjectionWithAspectRatioInverse { get; private set; } = Matrix4x4.Identity;
+        /// <summary>
+        /// Projection transform combined with aspect ratio
+        /// </summary>
+        public Matrix4x4 ProjectionWithAspectRatio { get; private set; } = Matrix4x4.Identity;
         /// <summary>
         /// Camera Position in world
         /// </summary>
@@ -56,6 +68,13 @@ namespace md.stdl.Interaction.Notui
         /// Camera view orientation in world
         /// </summary>
         public Quaternion ViewOrientation { get; private set; } = Quaternion.Identity;
+        /// <summary>
+        /// Delta time between mainloop calls in seconds
+        /// </summary>
+        /// <remarks>
+        /// This is provided by the implementer in the Mainloop args
+        /// </remarks>
+        public float DeltaTime { get; private set; } = 0;
 
         /// <summary>
         /// All the touches in this context
@@ -85,6 +104,11 @@ namespace md.stdl.Interaction.Notui
             Matrix4x4.Invert(View, out var invview);
             var aspproj = Projection * invasp;
             Matrix4x4.Invert(aspproj, out var invaspproj);
+
+            ViewInverse = invview;
+            ProjectionWithAspectRatio = aspproj;
+            ProjectionWithAspectRatioInverse = invaspproj;
+            DeltaTime = deltaT;
 
             Matrix4x4.Decompose(invview, out var vscale, out var vquat, out var vpos);
             ViewOrientation = vquat;
@@ -156,10 +180,9 @@ namespace md.stdl.Interaction.Notui
             Touches.Values.AsParallel().ForAll(touch =>
             {
                 // Transform touches into world
-                var tpw = Vector4.Transform(new Vector4(touch.Point, 0, 1), invaspproj * invview);
-                var tpdw = Vector4.Transform(new Vector4(touch.Point, 1, 1), invaspproj * invview);
-                touch.WorldPosition = tpw.xyz() / tpw.W;
-                touch.ViewDir = Vector3.Normalize(tpdw.xyz() / tpdw.W - tpw.xyz() / tpw.W);
+                Coordinates.GetPointWorldPosDir(touch.Point, invaspproj, invview, out var tpw, out var tpd);
+                touch.WorldPosition = tpw;
+                touch.ViewDir = tpd;
 
                 // get hitting intersections and order them from closest to furthest
                 var intersections = FlatElementList.Values.Select(el =>

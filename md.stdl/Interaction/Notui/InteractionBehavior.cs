@@ -4,11 +4,16 @@ using System.Numerics;
 
 namespace md.stdl.Interaction.Notui
 {
+    /// <inheritdoc />
     /// <summary>
     /// Attribute telling some metadata about the behavior's parameter for the host application
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class BehaviorParameterAttribute : Attribute { }
+    public class BehaviorParameterAttribute : Attribute
+    {
+        public float Minimum = float.MinValue;
+        public float Maximum = float.MaxValue;
+    }
 
     /// <summary>
     /// Abstract class for defining per-frame behavior for any IGuiElement.

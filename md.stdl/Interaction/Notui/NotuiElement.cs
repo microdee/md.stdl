@@ -446,7 +446,7 @@ namespace md.stdl.Interaction.Notui
 
         public void UpdateFrom(ElementPrototype other)
         {
-            this.UpdateCommon(other);
+            this.UpdateCommon(other, other.TransformApplication);
             Value?.UpdateFrom(other.Value);
             UpdateChildren(true, other.Children.Values.ToArray());
         }
@@ -477,7 +477,7 @@ namespace md.stdl.Interaction.Notui
         /// <param name="parent"></param>
         protected NotuiElement(ElementPrototype prototype, NotuiContext context, NotuiElement parent = null)
         {
-            this.UpdateCommon(prototype);
+            this.UpdateCommon(prototype, ApplyTransformMode.All);
             Value = prototype.Value?.Copy();
             Context = context;
             Parent = parent;

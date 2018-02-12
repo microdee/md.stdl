@@ -29,6 +29,11 @@ namespace md.stdl.Interaction.Notui
         public AuxiliaryObject EnvironmentObject { get; set; }
 
         /// <summary>
+        /// Selectively apply transform components. Default is All
+        /// </summary>
+        public ApplyTransformMode TransformApplication { get; set; } = ApplyTransformMode.All;
+
+        /// <summary>
         /// The element this element inherits its transformation from. Null if this element is directly in a context.
         /// </summary>
         public ElementPrototype Parent { get; set; }
@@ -71,7 +76,7 @@ namespace md.stdl.Interaction.Notui
         public ElementPrototype(NotuiElement fromInstance, bool newId = true)
         {
             InstanceType = fromInstance.GetType();
-            this.UpdateCommon(fromInstance);
+            this.UpdateCommon(fromInstance, ApplyTransformMode.All);
 
             Value = fromInstance.Value?.Copy();
             EnvironmentObject = fromInstance.EnvironmentObject.Copy();

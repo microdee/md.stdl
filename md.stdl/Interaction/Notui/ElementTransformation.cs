@@ -6,6 +6,38 @@ using Matrix4x4 = System.Numerics.Matrix4x4;
 
 namespace md.stdl.Interaction.Notui
 {
+    /// <summary>
+    /// Enum flags to selectively apply transform components
+    /// </summary>
+    [Flags]
+    public enum ApplyTransformMode
+    {
+        /// <summary>
+        /// No transformation will be updated
+        /// </summary>
+        None = 0x0,
+
+        /// <summary>
+        /// All components should be updated
+        /// </summary>
+        All = 0xFF,
+
+        /// <summary>
+        /// Translation should be updated
+        /// </summary>
+        Translation = 0x1,
+
+        /// <summary>
+        /// Rotation should be updated
+        /// </summary>
+        Rotation = 0x2,
+
+        /// <summary>
+        /// Scale should be updated
+        /// </summary>
+        Scale = 0x4
+    }
+
     public class ElementTransformation : ICloneable<ElementTransformation>, IUpdateable<ElementTransformation>
     {
         /// <summary>
@@ -65,6 +97,13 @@ namespace md.stdl.Interaction.Notui
             Position = other.Position;
             Rotation = other.Rotation;
             Scale = other.Scale;
+        }
+
+        public void UpdateFrom(ElementTransformation other, ApplyTransformMode selective)
+        {
+            if (((byte)selective & 0x1) != 0x0) Position = other.Position;
+            if (((byte)selective & 0x2) != 0x0) Rotation = other.Rotation;
+            if (((byte)selective & 0x4) != 0x0) Scale = other.Scale;
         }
 
         /// <summary>

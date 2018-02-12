@@ -84,8 +84,8 @@ namespace md.stdl.Interaction.Notui
             element.FadeOutTime = prototype.FadeOutTime;
             element.FadeInTime = prototype.FadeInTime;
             element.Behaviors = prototype.Behaviors;
-            element.InteractionTransformation.UpdateFrom(prototype.InteractionTransformation);
-            element.DisplayTransformation.UpdateFrom(prototype.DisplayTransformation);
+            element.InteractionTransformation.UpdateFrom(prototype.InteractionTransformation, selectivetr);
+            element.DisplayTransformation.UpdateFrom(prototype.DisplayTransformation, selectivetr);
         }
     }
 }

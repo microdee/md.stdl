@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using md.stdl.Mathematics;
 using VVVV.Utils.Animation;
 
 namespace md.stdl.Interaction

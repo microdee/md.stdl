@@ -48,7 +48,27 @@ namespace md.stdl.Interaction.Notui
             tr.Rotation = Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z) * tr.Rotation;
         }
 
-        public static void UpdateCommon(this IElementCommon element, IElementCommon prototype)
+        /// <summary>
+        /// Rotate transformation with global delta quaternion
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="q">Delta quaternion</param>
+        public static void GlobalRotate(this ElementTransformation tr, Quaternion q)
+        {
+            tr.Rotation = tr.Rotation * q;
+        }
+
+        /// <summary>
+        /// Rotate transformation with local delta pitch yaw roll
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="q">Delta quaternion</param>
+        public static void LocalRotate(this ElementTransformation tr, Quaternion q)
+        {
+            tr.Rotation = q * tr.Rotation;
+        }
+
+        public static void UpdateCommon(this IElementCommon element, IElementCommon prototype, ApplyTransformMode selectivetr)
         {
             element.Id = prototype.Id;
 

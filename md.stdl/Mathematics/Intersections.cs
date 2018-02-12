@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Math;
 
 namespace md.stdl.Mathematics
 {
@@ -60,6 +61,21 @@ namespace md.stdl.Mathematics
             isPoint = Vector3.Zero;
             pointOnPlane = Vector3.Zero;
             return false;
+        }
+
+        public static bool BoxPoint(Vector3 boxmin, Vector3 boxmax, Vector3 point)
+        {
+            return point.X >= boxmin.X && point.X <= boxmax.X &&
+                   point.Y >= boxmin.Y && point.Y <= boxmax.Y &&
+                   point.Z >= boxmin.Z && point.Z <= boxmax.Z;
+        }
+        public static Vector3 BoxPointLimit(Vector3 boxmin, Vector3 boxmax, Vector3 point)
+        {
+            return new Vector3(
+                Min(Max(point.X, boxmin.X), boxmax.X),
+                Min(Max(point.Y, boxmin.Y), boxmax.Y),
+                Min(Max(point.Z, boxmin.Z), boxmax.Z)
+                );
         }
     }
 }

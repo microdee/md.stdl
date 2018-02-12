@@ -28,5 +28,13 @@ namespace md.stdl.Mathematics
                 (float)Sin(polar.X) * polar.Y
             );
         }
+
+        public static void GetPointWorldPosDir(Vector2 point, Matrix4x4 invaspproj, Matrix4x4 invview, out Vector3 worldpos, out Vector3 viewdir)
+        {
+            var tpw = Vector4.Transform(new Vector4(point, 0, 1), invaspproj * invview);
+            var tpdw = Vector4.Transform(new Vector4(point, 1, 1), invaspproj * invview);
+            worldpos = tpw.xyz() / tpw.W;
+            viewdir = Vector3.Normalize(tpdw.xyz() / tpdw.W - tpw.xyz() / tpw.W);
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
             var movedir = Vector3.Normalize(element.Context.ViewPosition - SelectTransform(element).Position);
             element.DisplayTransformation.Translate(movedir * moveby);
             element.InteractionTransformation.Translate(movedir * moveby);
-            foreach (var el in element.Context.Elements.Values)
+            foreach (var el in element.Context.RootElements.Values)
             {
                 el.DisplayTransformation.Translate(movedir * mindist * -1);
                 el.InteractionTransformation.Translate(movedir * mindist * -1);

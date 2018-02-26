@@ -68,6 +68,12 @@ namespace md.stdl.Interaction.Notui
             tr.Rotation = q * tr.Rotation;
         }
 
+        /// <summary>
+        /// Update an IElementCommon from another IElementCommon
+        /// </summary>
+        /// <param name="element">Receiving element, Can be a prototype or an instance</param>
+        /// <param name="prototype">Reference element, Can be a prototype or an instance</param>
+        /// <param name="selectivetr"></param>
         public static void UpdateCommon(this IElementCommon element, IElementCommon prototype, ApplyTransformMode selectivetr)
         {
             element.Id = prototype.Id;

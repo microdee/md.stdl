@@ -10,11 +10,12 @@ using md.stdl.Time;
 
 namespace md.stdl.Interaction.Notui
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="ICloneable{T}" />
+    /// <inheritdoc cref="IElementCommon"/>
     /// <summary>
     /// A stateless record class serving as schematic for creating the actual Notui elements
     /// </summary>
-    public class ElementPrototype : IElementCommon
+    public class ElementPrototype : IElementCommon, ICloneable<ElementPrototype>
     {
         public string Name { get; set; }
         public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -113,6 +114,18 @@ namespace md.stdl.Interaction.Notui
         public NotuiElement Instantiate(NotuiContext context, NotuiElement parent = null)
         {
             return (NotuiElement)GetElementConstructor().Invoke(new object[] { this, context, parent });
+        }
+
+        public ElementPrototype Copy()
+        {
+            var res = new ElementPrototype(InstanceType, Id, Parent);
+            res.UpdateCommon(this, ApplyTransformMode.All);
+            return res;
+        }
+
+        public object Clone()
+        {
+            throw new NotImplementedException();
         }
     }
 }

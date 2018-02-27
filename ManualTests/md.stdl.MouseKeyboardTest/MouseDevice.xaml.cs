@@ -48,6 +48,7 @@ namespace md.stdl.MouseKeyboardTest
                     AccY.Text = accMouse.AccumulatedYDelta.ToString();
                     AccWH.Text = accMouse.AccumulatedHorizontalWheelDelta.ToString();
                     AccWV.Text = accMouse.AccumulatedWheelDelta.ToString();
+                    ImmediateWV.Text = accMouse.MouseClicks[MouseButtons.Left].ClickCount.ToString();
 
                     LeftButtonIndicator.Fill = accMouse.MouseClicks[MouseButtons.Left].Pressed
                         ? ButtonBrushPressed

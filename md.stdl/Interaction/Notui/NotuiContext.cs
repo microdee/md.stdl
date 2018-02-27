@@ -90,7 +90,7 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// All the elements in this context including the children of the root elements recursively
         /// </summary>
-        public Dictionary<string, NotuiElement> FlatElements { get; } = new Dictionary<string, NotuiElement>();
+        public List<NotuiElement> FlatElements { get; } = new List<NotuiElement>();
 
         /// <summary>
         /// Call this function every frame in your own main loop
@@ -136,7 +136,7 @@ namespace md.stdl.Interaction.Notui
             bool rebuild = false;
             if (_elementsDeleted)
             {
-                foreach (var element in FlatElements.Values)
+                foreach (var element in FlatElements)
                 {
                     if (!element.DeleteMe) continue;
                     if (element.Parent == null) RootElements.Remove(element.Id);
@@ -169,7 +169,7 @@ namespace md.stdl.Interaction.Notui
             }
 
             // preparing elements for hittest
-            foreach (var element in FlatElements.Values)
+            foreach (var element in FlatElements)
             {
                 //Matrix4x4.Decompose(element.DisplayMatrix, out var aelscale, out var aelrot, out var aelpos);
                 //var elpos = Vector4.Transform(new Vector4(aelpos, 1), View * aspproj);
@@ -186,7 +186,7 @@ namespace md.stdl.Interaction.Notui
                 touch.ViewDir = tpd;
 
                 // get hitting intersections and order them from closest to furthest
-                var intersections = FlatElements.Values.Select(el =>
+                var intersections = FlatElements.Select(el =>
                     {
                         var intersection = el.HitTest(touch);
                         if (intersection != null) intersection.Element = el;
@@ -215,7 +215,7 @@ namespace md.stdl.Interaction.Notui
             });
 
             // Do element logic in parallel
-            FlatElements.Values.AsParallel().ForAll(el =>
+            FlatElements.AsParallel().ForAll(el =>
             {
                 foreach (var touch in Touches.Values)
                 {
@@ -254,7 +254,7 @@ namespace md.stdl.Interaction.Notui
 
         private void BuildFlatList()
         {
-            foreach (var element in FlatElements.Values)
+            foreach (var element in FlatElements)
             {
                 element.OnDeleting -= OnElementDeletion;
                 element.OnChildrenUpdated -= OnElementUpdate;
@@ -265,7 +265,7 @@ namespace md.stdl.Interaction.Notui
                 element.FlattenElements(FlatElements);
             }
 
-            foreach (var element in FlatElements.Values)
+            foreach (var element in FlatElements)
             {
                 element.OnDeleting += OnElementDeletion;
                 element.OnChildrenUpdated += OnElementUpdate;

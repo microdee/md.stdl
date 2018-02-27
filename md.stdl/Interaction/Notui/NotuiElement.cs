@@ -192,13 +192,13 @@ namespace md.stdl.Interaction.Notui
         /// <summary>
         /// Pure function for flattening the element hiararchy into a single list
         /// </summary>
-        /// <param name="flatElementDictionary">The list containing the result</param>
-        public void FlattenElements(Dictionary<string, NotuiElement> flatElementDictionary)
+        /// <param name="flatElements">The list containing the result</param>
+        public void FlattenElements(List<NotuiElement> flatElements)
         {
-            flatElementDictionary.Add(Id, this);
+            flatElements.Add(this);
             foreach (var child in Children.Values)
             {
-                child.FlattenElements(flatElementDictionary);
+                child.FlattenElements(flatElements);
             }
         }
 

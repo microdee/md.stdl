@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using md.stdl.Coding;
+using md.stdl.Mathematics;
 
 namespace md.stdl.Interaction.Notui
 {
@@ -92,6 +93,29 @@ namespace md.stdl.Interaction.Notui
             element.Behaviors = prototype.Behaviors;
             element.InteractionTransformation.UpdateFrom(prototype.InteractionTransformation, selectivetr);
             element.DisplayTransformation.UpdateFrom(prototype.DisplayTransformation, selectivetr);
+        }
+
+        /// <summary>
+        /// Get the planar velocity of a touch and its current and previous intersection-point in the selected plane's space
+        /// </summary>
+        /// <param name="touch"></param>
+        /// <param name="plane">Arbitrary matrix of the XY plane to do the intersection with</param>
+        /// <param name="context">Notui context to provide screen space/alignment information</param>
+        /// <param name="currpos">Current intersection point in the space of the plane</param>
+        /// <param name="prevpos">Previous intersection point in the space of the plane</param>
+        /// <returns>Velocity of the touch relative to the space of the plane</returns>
+        public static Vector3 GetPlanarVelocity(this TouchContainer touch, Matrix4x4 plane, NotuiContext context, out Vector3 currpos, out Vector3 prevpos)
+        {
+            // get planar coords for current touch position
+            var hit = Intersections.PlaneRay(touch.WorldPosition, touch.ViewDir, plane, out var capos, out var crpos);
+            currpos = crpos;
+
+            // get planar coords for the previous touch position
+            var prevpoint = touch.Point - touch.Velocity;
+            Coordinates.GetPointWorldPosDir(prevpoint, context.ProjectionWithAspectRatioInverse, context.ViewInverse, out var popos, out var pdir);
+            var phit = Intersections.PlaneRay(popos, pdir, plane, out var papos, out var prpos);
+            prevpos = prpos;
+            return crpos - prpos;
         }
     }
 }

@@ -30,6 +30,10 @@ namespace md.stdl.Interaction.Notui
         /// Ignore and delete touches older than this amount of frames
         /// </summary>
         public int ConsiderReleasedAfter { get; set; } = 1;
+        /// <summary>
+        /// To consider a touch minimum this amount of force have to be applied
+        /// </summary>
+        public float MinimumForce { get; set; } = -1.0f;
 
         /// <summary>
         /// Optional camera view matrix

@@ -496,6 +496,7 @@ namespace md.stdl.Interaction.Notui
         {
             if(touch.AgeFrames >= Context.ConsiderNewBefore) return;
             if(Touching.ContainsKey(touch)) return;
+            if(touch.Force < Context.MinimumForce) return;
 
             var eventargs = new TouchInteractionEventArgs { Touch = touch };
             if (Touching.Count == 0) OnInteractionBegin?.Invoke(this, eventargs);

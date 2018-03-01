@@ -138,6 +138,7 @@
     <Compile Include="Interaction\Notui\2DBasicElements.cs" />
     <Compile Include="Interaction\Notui\Behaviors\MoveToTopOnTouch.cs" />
     <Compile Include="Interaction\Notui\Behaviors\Sliding.cs" />
+    <Compile Include="Interaction\Notui\Behaviors\ValueSlider2D.cs" />
     <Compile Include="Interaction\Notui\NotuiElement.cs" />
     <Compile Include="Interaction\Notui\ElementCommon.cs" />
     <Compile Include="Interaction\Notui\ElementTransformation.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Interaction\Notui\NotuiExtensions.cs" />
     <Compile Include="Interaction\Notui\InteractionBehavior.cs" />
     <Compile Include="Interaction\Notui\NotuiContext.cs" />
+    <Compile Include="Interaction\Notui\NotuiUtils.cs" />
     <Compile Include="Interaction\RawInputService.cs" />
     <Compile Include="Interaction\PrimitiveTouch.cs" />
     <Compile Include="Mathematics\Coordinates.cs" />

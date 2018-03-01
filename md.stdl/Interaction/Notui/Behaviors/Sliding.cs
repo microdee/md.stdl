@@ -175,20 +175,6 @@ namespace md.stdl.Interaction.Notui.Behaviors
 
         private SelectedPlane _actualPlaneSelection;
 
-        private Vector3 GetTouchPlanarVelocity(TouchContainer touch, Matrix4x4 plane, NotuiContext context, out Vector3 currpos, out Vector3 prevpos)
-        {
-            // get planar coords for current touch position
-            var hit = Intersections.PlaneRay(touch.WorldPosition, touch.ViewDir, plane, out var capos, out var crpos);
-            currpos = crpos;
-
-            // get planar coords for the previous touch position
-            var prevpoint = touch.Point - touch.Velocity;
-            Coordinates.GetPointWorldPosDir(prevpoint, context.ProjectionWithAspectRatioInverse, context.ViewInverse, out var popos, out var pdir);
-            var phit = Intersections.PlaneRay(popos, pdir, plane, out var papos, out var prpos);
-            prevpos = prpos;
-            return crpos - prpos;
-        }
-
         private void Move(NotuiElement element, BehaviorState state, Matrix4x4 usedplane)
         {
             var disptr = element.DisplayTransformation;
@@ -326,7 +312,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 // if Draggable is true and there's only 1 touch do a simple translation move only
                 if (Draggable && element.Touching.Count == 1)
                 {
-                    var relvel = GetTouchPlanarVelocity(element.Touching.Keys.First(), usedplane, element.Context,
+                    var relvel = element.Touching.Keys.First().GetPlanarVelocity(usedplane, element.Context,
                         out var crelpos, out var prelpos);
                     currstate.DeltaPos = relvel.xy();
 
@@ -344,7 +330,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 // If Draggable is off but Pivotable or Scalable is still on do a rotation around the element center
                 if (!Draggable && element.Touching.Count == 1)
                 {
-                    GetTouchPlanarVelocity(element.Touching.Keys.First(), usedplane, element.Context,
+                    element.Touching.Keys.First().GetPlanarVelocity(usedplane, element.Context,
                         out var crelpos, out var prelpos);
                     var deltarn = CalcDeltaFromTwoTouch(crelpos.xy(), prelpos.xy(), crelpos.xy() * -1, prelpos.xy() * -1);
 
@@ -365,8 +351,8 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 var orderedbyfastest = touches.OrderByDescending(t => t.Velocity.LengthSquared()).ToArray();
                 var t0 = orderedbyfastest[0];
                 var t1 = orderedbyfastest[1];
-                GetTouchPlanarVelocity(t0, usedplane, element.Context, out var cp0, out var pp0);
-                GetTouchPlanarVelocity(t1, usedplane, element.Context, out var cp1, out var pp1);
+                t0.GetPlanarVelocity(usedplane, element.Context, out var cp0, out var pp0);
+                t1.GetPlanarVelocity(usedplane, element.Context, out var cp1, out var pp1);
                 var delta = CalcDeltaFromTwoTouch(cp0.xy(), pp0.xy(), cp1.xy(), pp1.xy());
 
                 currstate.DeltaPos = delta.xy();

@@ -35,7 +35,7 @@ namespace md.stdl.Interaction.Notui
         /// <param name="dPitchYawRoll">Delta pitch yaw roll</param>
         public static void GlobalRotate(this ElementTransformation tr, Vector3 dPitchYawRoll)
         {
-            tr.Rotation = tr.Rotation * Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z);
+            tr.Rotation = Quaternion.Normalize(tr.Rotation * Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z));
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace md.stdl.Interaction.Notui
         /// <param name="dPitchYawRoll">Delta pitch yaw roll</param>
         public static void LocalRotate(this ElementTransformation tr, Vector3 dPitchYawRoll)
         {
-            tr.Rotation = Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z) * tr.Rotation;
+            tr.Rotation = Quaternion.Normalize(Quaternion.CreateFromYawPitchRoll(dPitchYawRoll.Y, dPitchYawRoll.X, dPitchYawRoll.Z) * tr.Rotation);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace md.stdl.Interaction.Notui
         /// <param name="q">Delta quaternion</param>
         public static void GlobalRotate(this ElementTransformation tr, Quaternion q)
         {
-            tr.Rotation = tr.Rotation * q;
+            tr.Rotation = Quaternion.Normalize(tr.Rotation * q);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace md.stdl.Interaction.Notui
         /// <param name="q">Delta quaternion</param>
         public static void LocalRotate(this ElementTransformation tr, Quaternion q)
         {
-            tr.Rotation = q * tr.Rotation;
+            tr.Rotation = Quaternion.Normalize(q * tr.Rotation);
         }
 
         /// <summary>

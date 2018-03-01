@@ -207,15 +207,14 @@ namespace md.stdl.Interaction.Notui.Behaviors
             }
             if (Scalable)
             {
-                var sclvel = 1 + state.DeltaSize * ScalingCoeffitient;
-
-                // save previous scale
-                var scl = disptr.Scale;
-                disptr.Resize(new Vector3(sclvel));
-
-                // if end result is outside boundaries reset it to previous scale
-                if (disptr.Scale.Length() > ScaleMinMax.Y || disptr.Scale.Length() < ScaleMinMax.X)
-                    disptr.Scale = scl;
+                var sclvel = state.DeltaSize * ScalingCoeffitient;
+                disptr.Scale = Vector3.Max(
+                    new Vector3(ScaleMinMax.X),
+                    Vector3.Min(
+                        new Vector3(ScaleMinMax.Y),
+                        disptr.Scale * new Vector3(1 + sclvel)
+                    )
+                );
 
             }
             if (Pivotable)
@@ -229,12 +228,12 @@ namespace md.stdl.Interaction.Notui.Behaviors
                     var worldaxis = Vector3.TransformNormal(Vector3.UnitZ, usedplane);
                     var worldrot = Quaternion.CreateFromAxisAngle(worldaxis, state.DeltaAngle * RotationCoeffitient);
 
-                    if (element.Parent != null)
-                    {
-                        Matrix4x4.Invert(element.Parent.DisplayMatrix, out var invparenttr);
-                        Matrix4x4.Decompose(invparenttr, out var ipscale, out var iprot, out var ippos);
-                        worldrot = worldrot * iprot;
-                    }
+                    //if (element.Parent != null)
+                    //{
+                    //    Matrix4x4.Invert(element.Parent.DisplayMatrix, out var invparenttr);
+                    //    Matrix4x4.Decompose(invparenttr, out var ipscale, out var iprot, out var ippos);
+                    //    worldrot = worldrot * iprot;
+                    //}
                     disptr.GlobalRotate(worldrot);
                 }
             }

@@ -31,5 +31,22 @@ namespace md.stdl.Coding
                     valuemapper(kvp.Value)
                 )).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
+
+        /// <summary>
+        /// Fill a list or array from a starting point with the contents of another list or array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="from">The other list or array</param>
+        /// <param name="start">Starting index offset</param>
+        public static void Fill<T>(this IList<T> list, IList<T> from, int start = 0)
+        {
+            if(start >= list.Count) return;
+            for (int i = 0; i < Math.Min(list.Count-start, from.Count); i++)
+            {
+                int ii = i + start;
+                list[ii] = from[i];
+            }
+        }
     }
 }

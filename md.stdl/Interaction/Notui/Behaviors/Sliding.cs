@@ -310,9 +310,9 @@ namespace md.stdl.Interaction.Notui.Behaviors
             if(touches.Count >= MinimumTouches)
             {
                 // if Draggable is true and there's only 1 touch do a simple translation move only
-                if (Draggable && element.Touching.Count == 1)
+                if (Draggable && touches.Count <= 1)
                 {
-                    var relvel = element.Touching.Keys.First().GetPlanarVelocity(usedplane, element.Context,
+                    var relvel = touches.First().GetPlanarVelocity(usedplane, element.Context,
                         out var crelpos, out var prelpos);
                     currstate.DeltaPos = relvel.xy();
 
@@ -328,11 +328,14 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 }
                 
                 // If Draggable is off but Pivotable or Scalable is still on do a rotation around the element center
-                if (!Draggable && element.Touching.Count == 1)
+                if (!Draggable && touches.Count <= 1)
                 {
-                    element.Touching.Keys.First().GetPlanarVelocity(usedplane, element.Context,
+                    touches.First().GetPlanarVelocity(usedplane, element.Context,
                         out var crelpos, out var prelpos);
-                    var deltarn = CalcDeltaFromTwoTouch(crelpos.xy(), prelpos.xy(), crelpos.xy() * -1, prelpos.xy() * -1);
+                    var deltarn = Vector4.Zero;
+
+                    if (crelpos.xy().Length() > 0.00001)
+                        deltarn = CalcDeltaFromTwoTouch(crelpos.xy(), prelpos.xy(), crelpos.xy() * -1, prelpos.xy() * -1);
 
                     // reset translation delta
                     currstate.DeltaPos = Vector2.Zero;
@@ -351,6 +354,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
                 var orderedbyfastest = touches.OrderByDescending(t => t.Velocity.LengthSquared()).ToArray();
                 var t0 = orderedbyfastest[0];
                 var t1 = orderedbyfastest[1];
+
                 t0.GetPlanarVelocity(usedplane, element.Context, out var cp0, out var pp0);
                 t1.GetPlanarVelocity(usedplane, element.Context, out var cp1, out var pp1);
                 var delta = CalcDeltaFromTwoTouch(cp0.xy(), pp0.xy(), cp1.xy(), pp1.xy());

@@ -180,7 +180,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
             var disptr = element.DisplayTransformation;
             if (Draggable)
             {
-                var worldvel = Vector4.Transform(new Vector4(state.DeltaPos * DraggingCoeffitient, 0, 0), usedplane).xyz();
+                var worldvel = Vector4.Transform(new Vector4(state.DeltaPos * DraggingCoeffitient * 0.5f, 0, 0), usedplane).xyz();
                 if (element.Parent != null)
                 {
                     Matrix4x4.Invert(element.Parent.DisplayMatrix, out var invparenttr);
@@ -193,7 +193,7 @@ namespace md.stdl.Interaction.Notui.Behaviors
             }
             if (Scalable)
             {
-                var sclvel = state.DeltaSize * ScalingCoeffitient;
+                var sclvel = state.DeltaSize * ScalingCoeffitient * 0.5f;
                 disptr.Scale = Vector3.Max(
                     new Vector3(ScaleMinMax.X),
                     Vector3.Min(
@@ -206,21 +206,19 @@ namespace md.stdl.Interaction.Notui.Behaviors
             if (Pivotable)
             {
                 // see if rotation is still inside boundaries
-                var targetrot = state.TotalAngle + state.DeltaAngle * RotationCoeffitient;
+                var targetrot = state.TotalAngle + state.DeltaAngle * RotationCoeffitient * 0.5f * (1/disptr.Scale.Length());
                 if (!LimitRotation || RotationMinMax.X <= targetrot && targetrot <= RotationMinMax.Y)
                 {
                     state.TotalAngle = targetrot;
 
                     var worldaxis = Vector3.TransformNormal(Vector3.UnitZ, usedplane);
+                    if (element.Parent != null)
+                    {
+                        Matrix4x4.Invert(element.Parent.DisplayMatrix, out var invparenttr);
+                        worldaxis = Vector3.TransformNormal(worldaxis, invparenttr);
+                    }
                     var worldrot = Quaternion.CreateFromAxisAngle(worldaxis, state.DeltaAngle * RotationCoeffitient);
-
-                    //if (element.Parent != null)
-                    //{
-                    //    Matrix4x4.Invert(element.Parent.DisplayMatrix, out var invparenttr);
-                    //    Matrix4x4.Decompose(invparenttr, out var ipscale, out var iprot, out var ippos);
-                    //    worldrot = worldrot * iprot;
-                    //}
-                    disptr.GlobalRotate(worldrot);
+                    disptr.LocalRotate(worldrot);
                 }
             }
             element.UpdateFromDisplayToInteraction(element);

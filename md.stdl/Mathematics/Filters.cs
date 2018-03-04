@@ -85,7 +85,8 @@ namespace md.stdl.Mathematics
         public static float Velocity(float prevpos, float target, float velocity)
         {
             var d = target - prevpos;
-            return prevpos + Min(Abs(d), velocity) * Sign(d);
+            if (Abs(d) < 0.00001) return target;
+            return prevpos + Sign(d) * Min(velocity, Abs(d));
         }
         /// <summary>
         /// Simple velocity driven filter for Vector2
@@ -96,6 +97,7 @@ namespace md.stdl.Mathematics
         /// <returns>New position</returns>
         public static Vector2 Velocity(Vector2 prevpos, Vector2 target, float velocity)
         {
+            if (Vector2.Distance(target, prevpos) < 0.00001) return target;
             var d = target - prevpos;
             return prevpos + Vector2.Normalize(d) * Min(velocity, d.Length());
         }
@@ -108,6 +110,7 @@ namespace md.stdl.Mathematics
         /// <returns>New position</returns>
         public static Vector3 Velocity(Vector3 prevpos, Vector3 target, float velocity)
         {
+            if (Vector3.Distance(target, prevpos) < 0.00001) return target;
             var d = target - prevpos;
             return prevpos + Vector3.Normalize(d) * Min(velocity, d.Length());
         }
@@ -120,6 +123,7 @@ namespace md.stdl.Mathematics
         /// <returns>New position</returns>
         public static Vector4 Velocity(Vector4 prevpos, Vector4 target, float velocity)
         {
+            if (Vector4.Distance(target, prevpos) < 0.00001) return target;
             var d = target - prevpos;
             return prevpos + Vector4.Normalize(d) * Min(velocity, d.Length());
         }
@@ -133,6 +137,7 @@ namespace md.stdl.Mathematics
         public static Quaternion Velocity(Quaternion prevpos, Quaternion target, float velocity)
         {
             var d = target - prevpos;
+            if (d.Length() < 0.00001) return target;
             return prevpos + Quaternion.Normalize(d) * Min(velocity, d.Length());
         }
         #endregion
@@ -150,6 +155,12 @@ namespace md.stdl.Mathematics
         public static void Inertial(float prevpos, float prevvel, float target, float force, out float newpos, out float newvel)
         {
             var d = target - prevpos;
+            if (Abs(d) < 0.00001)
+            {
+                newpos = target;
+                newvel = 0;
+                return;
+            }
             var f = Min(Abs(d), force)*Sign(d);
             newvel = prevvel + f;
             newpos = prevpos + newvel;
@@ -165,6 +176,12 @@ namespace md.stdl.Mathematics
         /// <param name="newvel">New velocity</param>
         public static void Inertial(Vector2 prevpos, Vector2 prevvel, Vector2 target, float force, out Vector2 newpos, out Vector2 newvel)
         {
+            if (Vector2.Distance(target, prevpos) < 0.00001)
+            {
+                newpos = target;
+                newvel = Vector2.Zero;
+                return;
+            }
             var d = target - prevpos;
             var f = Vector2.Normalize(d) * Min(force, d.Length());
             newvel = prevvel + f;
@@ -181,6 +198,12 @@ namespace md.stdl.Mathematics
         /// <param name="newvel">New velocity</param>
         public static void Inertial(Vector3 prevpos, Vector3 prevvel, Vector3 target, float force, out Vector3 newpos, out Vector3 newvel)
         {
+            if (Vector3.Distance(target, prevpos) < 0.00001)
+            {
+                newpos = target;
+                newvel = Vector3.Zero;
+                return;
+            }
             var d = target - prevpos;
             var f = Vector3.Normalize(d) * Min(force, d.Length());
             newvel = prevvel + f;
@@ -197,6 +220,12 @@ namespace md.stdl.Mathematics
         /// <param name="newvel">New velocity</param>
         public static void Inertial(Vector4 prevpos, Vector4 prevvel, Vector4 target, float force, out Vector4 newpos, out Vector4 newvel)
         {
+            if (Vector4.Distance(target, prevpos) < 0.00001)
+            {
+                newpos = target;
+                newvel = Vector4.Zero;
+                return;
+            }
             var d = target - prevpos;
             var f = Vector4.Normalize(d) * Min(force, d.Length());
             newvel = prevvel + f;
@@ -214,6 +243,12 @@ namespace md.stdl.Mathematics
         public static void Inertial(Quaternion prevpos, Quaternion prevvel, Quaternion target, float force, out Quaternion newpos, out Quaternion newvel)
         {
             var d = target - prevpos;
+            if (d.Length() < 0.00001)
+            {
+                newpos = target;
+                newvel = Quaternion.Identity;
+                return;
+            }
             var f = Quaternion.Normalize(d) * Min(force, d.Length());
             newvel = prevvel + f;
             newpos = prevpos + newvel;

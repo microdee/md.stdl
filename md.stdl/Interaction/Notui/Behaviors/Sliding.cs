@@ -226,7 +226,6 @@ namespace md.stdl.Interaction.Notui.Behaviors
 
         private void FlickProgress(BehaviorState state, NotuiContext context)
         {
-            var frametime = context.DeltaTime * FlickTime;
             if (FlickTime < context.DeltaTime)
             {
                 state.DeltaPos = Vector2.Zero;
@@ -235,9 +234,12 @@ namespace md.stdl.Interaction.Notui.Behaviors
             }
             else
             {
-                state.DeltaPos = Filters.Velocity(state.DeltaPos, Vector2.Zero, frametime);
-                state.DeltaAngle = Filters.Velocity(state.DeltaAngle, 0, frametime);
-                state.DeltaSize = Filters.Velocity(state.DeltaSize, 0, frametime);
+                // TODO: that 6 there is a rough estimation magic number coming from a vague memory of the integral of something something low-pass filter
+                // It was years ago, only the 6 part stuck and it was good enough for animation
+                var frametime = (6 / FlickTime) * context.DeltaTime;
+                state.DeltaPos = Filters.Velocity(state.DeltaPos, Vector2.Zero, frametime * Max(0.001f, state.DeltaPos.Length()));
+                state.DeltaAngle = Filters.Velocity(state.DeltaAngle, 0, frametime * Max(0.001f, Abs(state.DeltaAngle)));
+                state.DeltaSize = Filters.Velocity(state.DeltaSize, 0, frametime * Max(0.001f, Abs(state.DeltaSize)));
             }
         }
 

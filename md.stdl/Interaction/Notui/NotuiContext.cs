@@ -23,6 +23,10 @@ namespace md.stdl.Interaction.Notui
     public class NotuiContext
     {
         /// <summary>
+        /// Use PLINQ or not?
+        /// </summary>
+        public bool UseParallel { get; set; } = true;
+        /// <summary>
         /// Consider touches to be new before the age of this amount of frames
         /// </summary>
         public int ConsiderNewBefore { get; set; } = 1;
@@ -182,7 +186,7 @@ namespace md.stdl.Interaction.Notui
             }
 
             // look at which touches hit which element
-            Touches.Values.AsParallel().ForAll(touch =>
+            void ProcessTouches(TouchContainer<NotuiElement[]> touch)
             {
                 // Transform touches into world
                 Coordinates.GetPointWorldPosDir(touch.Point, invaspproj, invview, out var tpw, out var tpd);
@@ -215,18 +219,22 @@ namespace md.stdl.Interaction.Notui
                     insec.Element.Hovering.TryAdd(touch, insec);
                     return insec.Element;
                 }).ToArray();
-                
-            });
 
-            // Do element logic in parallel
-            FlatElements.AsParallel().ForAll(el =>
+            }
+            if(UseParallel) Touches.Values.AsParallel().ForAll(ProcessTouches);
+            else Touches.Values.ForEach(ProcessTouches);
+
+            // Do element logic
+            void ProcessElements(NotuiElement el)
             {
                 foreach (var touch in Touches.Values)
                 {
                     el.ProcessTouch(touch);
                 }
                 el.MainLoop();
-            });
+            }
+            if(UseParallel) FlatElements.AsParallel().ForAll(ProcessElements);
+            else FlatElements.ForEach(ProcessElements);
         }
         
         /// <summary>

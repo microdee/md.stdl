@@ -242,9 +242,10 @@ namespace md.stdl.Interaction.Notui
         /// </summary>
         /// <param name="removeNotPresent">When true elements will be deleted if their prototype with the same ID is not found in the input array</param>
         /// <param name="elements">Input prototypes</param>
-        public void AddOrUpdateElements(bool removeNotPresent, params ElementPrototype[] elements)
+        /// <returns>List of the newly instantiated elements</returns>
+        public List<NotuiElement> AddOrUpdateElements(bool removeNotPresent, params ElementPrototype[] elements)
         {
-
+            var newelements = new List<NotuiElement>();
             if (removeNotPresent)
             {
                 var removables = (from el in RootElements.Values where elements.All(c => c.Id != el.Id) select el).ToArray();
@@ -259,9 +260,14 @@ namespace md.stdl.Interaction.Notui
                 if (RootElements.ContainsKey(el.Id))
                     RootElements[el.Id].UpdateFrom(el);
                 else
-                    RootElements.Add(el.Id, el.Instantiate(this));
+                {
+                    var elinst = el.Instantiate(this);
+                    RootElements.Add(el.Id, elinst);
+                    newelements.Add(elinst);
+                }
             }
             _elementsUpdated = true;
+            return newelements;
         }
 
         private void BuildFlatList()

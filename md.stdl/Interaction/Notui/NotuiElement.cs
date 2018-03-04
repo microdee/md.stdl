@@ -276,14 +276,26 @@ namespace md.stdl.Interaction.Notui
         /// Event fired when the Element finished fading
         /// </summary>
         public event EventHandler OnFadedIn;
-        
+
+        /// <summary>
+        /// First thing invoked on the mainloop (even before the virtual MainLoopBegin)
+        /// </summary>
+        public event EventHandler OnMainLoopBegin;
+
+        /// <summary>
+        /// Last thing invoked on the mainloop (even after the virtual MainLoopEnd)
+        /// </summary>
+        public event EventHandler OnMainLoopEnd;
+
         /// <summary>
         /// Add or update children of this element from prototypes
         /// </summary>
         /// <param name="children">children to be added</param>
         /// <param name="removeNotPresent">Remove Children from elements not present in the input</param>
-        public void UpdateChildren(bool removeNotPresent = false, params ElementPrototype[] children)
+        /// <returns>New children added to the element</returns>
+        public List<NotuiElement> UpdateChildren(bool removeNotPresent = false, params ElementPrototype[] children)
         {
+            var newchildren = new List<NotuiElement>();
             if (removeNotPresent)
             {
                 var removablechildren = (from child in Children.Values where children.All(c => c.Id != child.Id) select child).ToArray();
@@ -299,11 +311,14 @@ namespace md.stdl.Interaction.Notui
                     Children[child.Id].UpdateFrom(child);
                 else if(child.Id != Id)
                 {
-                    Children.Add(child.Id, child.Instantiate(Context, this));
+                    var childinst = child.Instantiate(Context, this);
+                    Children.Add(child.Id, childinst);
+                    newchildren.Add(childinst);
                 }
             }
 
             OnChildrenUpdated?.Invoke(this, new ChildrenUpdatedEventArgs {Elements = children});
+            return newchildren;
         }
 
         /// <summary>
@@ -343,7 +358,7 @@ namespace md.stdl.Interaction.Notui
         }
 
         /// <summary>
-        /// Method invoked before anything happens in mainloop
+        /// Method invoked before anything happens in mainloop, but after OnMainloopBegin event
         /// </summary>
         protected virtual void MainloopBegin() { }
         /// <summary>
@@ -363,10 +378,13 @@ namespace md.stdl.Interaction.Notui
         /// </remarks>
         public void MainLoop()
         {
+            OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
+
             InteractionTransformation.SubscribeToChange(Id, transformation => InvalidateMatrices());
             DisplayTransformation.SubscribeToChange(Id, transformation => InvalidateMatrices());
 
             MainloopBegin();
+
             var endtouches = (from touch in Touching.Keys where touch.ExpireFrames > Context.ConsiderReleasedAfter select touch).ToArray();
             foreach (var touch in endtouches)
             {
@@ -420,17 +438,19 @@ namespace md.stdl.Interaction.Notui
             {
                 behavior.Behave(this);
             }
+
             MainloopEnd();
+            OnMainLoopEnd?.Invoke(this, EventArgs.Empty);
         }
 
         public virtual NotuiElement Copy()
         {
             var newprot = new ElementPrototype(this);
-            var res = newprot.Instantiate(Context, Parent);
+            var newinst = Parent == null ?
+                Context.AddOrUpdateElements(false, newprot)[0] :
+                Parent.UpdateChildren(false, newprot)[0];
 
-            //TODO: Add the copy to the context
-
-            return res;
+            return newinst;
         }
 
         /// <summary>

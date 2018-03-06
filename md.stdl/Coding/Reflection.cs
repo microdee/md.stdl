@@ -11,7 +11,7 @@ namespace md.stdl.Coding
         /// <summary>
         /// Whether object is numeric or not, call for any object
         /// </summary>
-        public static bool IsNumeric(this object x) { return (x != null && IsNumeric(x.GetType())); }
+        public static bool IsNumeric(this object x) { return x == null ? false : IsNumeric(x.GetType()); }
 
         /// <summary>
         /// Whether type is numeric or not

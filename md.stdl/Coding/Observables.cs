@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,6 +36,24 @@ namespace md.stdl.Coding
         public void Dispose()
         {
             _removal?.Invoke(_observable, _observer);
+        }
+    }
+
+    public static class ObservableExtensions
+    {
+        /// <summary>
+        /// Generates an edge (true, false) in the output sequence for each
+        /// element received from the source sequence.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence.</param>
+        /// <returns>
+        /// An observable sequence containing an edge (true, false) for each 
+        /// element from the source sequence.
+        /// </returns>
+        public static IObservable<bool> Edge<T>(this IObservable<T> source)
+        {
+            return source.SelectMany(_ => new[] { true, false });
         }
     }
 }

@@ -137,6 +137,8 @@
     <Compile Include="Interaction\Mouse.cs" />
     <Compile Include="Interaction\RawInputService.cs" />
     <Compile Include="Interaction\PrimitiveTouch.cs" />
+    <Compile Include="Interfaces\CloneableUpdateable.cs" />
+    <Compile Include="Interfaces\IMainlooping.cs" />
     <Compile Include="Mathematics\Coordinates.cs" />
     <Compile Include="Mathematics\Filters.cs" />
     <Compile Include="Mathematics\Intersections.cs" />

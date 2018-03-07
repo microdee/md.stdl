@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using md.stdl.String;
 
 namespace md.stdl.Coding
 {
@@ -47,6 +49,89 @@ namespace md.stdl.Coding
                 int ii = i + start;
                 list[ii] = from[i];
             }
+        }
+
+        /// <summary>
+        /// Object PAth Query. General purpose object path query backend for accessing data with path like string and regex
+        /// </summary>
+        /// <typeparam name="TSrc">The source object type which contains the queryable data</typeparam>
+        /// <typeparam name="TData">The endpoint data type which is queried</typeparam>
+        /// <param name="obj">The source object which contains the queryable data</param>
+        /// <param name="path">The path with set separator. Each path component excluding the endpoint represents a source object level. The endpoint should yield the Data</param>
+        /// <param name="results">A list containing the resulting Data</param>
+        /// <param name="separator">The separator string used to distinguish path components</param>
+        /// <param name="keysQuery">(srcObject): possibleKeys; A function which returns the possible key values for the next path component level</param>
+        /// <param name="dataFromKey">(srcObject, key): resultData; A function which returns data objects via an endpoint key </param>
+        /// <param name="objectsFromKey">(srcObject, key): nextObjects; A function which returns the objects to be queried for the next component level</param>
+        public static void Opaq<TSrc, TData>(
+            this TSrc obj,
+            string path,
+            List<TData> results,
+            string separator,
+            Func<TSrc, IEnumerable<string>> keysQuery,
+            Func<TSrc, string, IEnumerable<TData>> dataFromKey,
+            Func<TSrc, string, IEnumerable<TSrc>> objectsFromKey)
+        {
+            var levels = path.SplitIgnoringBetween(separator, "`");
+            string nextpath = string.Join(separator, levels, 1, levels.Length - 1);
+
+            void NextStep(string currkey)
+            {
+                foreach (var cobj in objectsFromKey(obj, currkey))
+                {
+                    cobj.Opaq(nextpath, results, separator, keysQuery, dataFromKey, objectsFromKey);
+                }
+            }
+
+            //string[] levels = path.Split(separator.ToCharArray());
+            if ((levels[0][0] == '`') && (levels[0][levels[0].Length - 1] == '`'))
+            {
+                string key = levels[0].Trim('`');
+                Regex Pattern = new Regex(key);
+                foreach (string k in keysQuery(obj))
+                {
+                    if (Pattern.Match(k).Value == string.Empty) continue;
+                    if (levels.Length == 1)
+                    {
+                        results.AddRange(dataFromKey(obj, k));
+                    }
+                    else NextStep(k);
+                }
+            }
+            else
+            {
+                if (levels.Length == 1)
+                {
+                    results.AddRange(dataFromKey(obj, levels[0]));
+                    return;
+                }
+                NextStep(levels[0]);
+            }
+        }
+
+        /// <summary>
+        /// Object PAth Query. General purpose object path query backend for accessing data with path like string and regex
+        /// </summary>
+        /// <typeparam name="TSrc">The source object type which contains the queryable data</typeparam>
+        /// <typeparam name="TData">The endpoint data type which is queried</typeparam>
+        /// <param name="obj">The source object which contains the queryable data</param>
+        /// <param name="path">The path with set separator. Each path component excluding the endpoint represents a source object level. The endpoint should yield the Data</param>
+        /// <param name="separator">The separator string used to distinguish path components</param>
+        /// <param name="keysQuery">(srcObject): possibleKeys; A function which returns the possible key values for the next path component level</param>
+        /// <param name="dataFromKey">(srcObject, key): resultData; A function which returns data objects via an endpoint key </param>
+        /// <param name="objectsFromKey">(srcObject, key): nextObjects; A function which returns the objects to be queried for the next component level</param>
+        /// <returns>A list containing the resulting Data</returns>
+        public static List<TData> Opaq<TSrc, TData>(
+            this TSrc obj,
+            string path,
+            string separator,
+            Func<TSrc, IEnumerable<string>> keysQuery,
+            Func<TSrc, string, IEnumerable<TData>> dataFromKey,
+            Func<TSrc, string, IEnumerable<TSrc>> objectsFromKey)
+        {
+            var res = new List<TData>();
+            obj.Opaq(path, res, separator, keysQuery, dataFromKey, objectsFromKey);
+            return res;
         }
     }
 }

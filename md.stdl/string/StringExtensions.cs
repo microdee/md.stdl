@@ -23,6 +23,15 @@ namespace md.stdl.String
     }
     public static class StringExtensions
     {
+        public static string[] SplitIgnoringBetween(this string input, string separator, string ignorebetween)
+        {
+            return input.Split(ignorebetween.ToCharArray())
+                .Select((element, index) => index % 2 == 0  // If even index
+                    ? element.Split(separator.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)  // Split the item
+                    : new[] { ignorebetween + element + ignorebetween })  // Keep the entire item
+                .SelectMany(element => element).ToArray();
+        }
+
         public static string RemoveDiacritics(this string text)
         {
             return string.Concat(

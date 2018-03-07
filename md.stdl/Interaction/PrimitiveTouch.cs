@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using md.stdl.Interfaces;
 using md.stdl.Mathematics;
 using VVVV.Utils.Animation;
 
@@ -24,10 +25,11 @@ namespace md.stdl.Interaction
             return obj.Id;
         }
     }
+    /// <inheritdoc />
     /// <summary>
     /// Minimal multitouch touch container
     /// </summary>
-    public class TouchContainer
+    public class TouchContainer : IMainlooping
     {
         private Vector2 _prevPoint;
 
@@ -97,21 +99,22 @@ namespace md.stdl.Interaction
             Age.Start();
         }
 
-        /// <summary>
-        /// Call this every frame
-        /// </summary>
-        public virtual void Mainloop()
+        public event EventHandler OnMainLoopBegin;
+        public event EventHandler OnMainLoopEnd;
+        public virtual void Mainloop(float deltatime)
         {
+            OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
             AgeFrames++;
             ExpireFrames++;
+            OnMainLoopEnd?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
         /// Call every frame when the touch is present
         /// </summary>
         /// <param name="point">The new touch coordinates</param>
-        /// <param name="deltaft">Delta time of a frame (seconds are recommended)</param>
-        public virtual void Update(Vector2 point, float deltaft)
+        /// <param name="deltatime">Delta time of a frame (seconds are recommended)</param>
+        public virtual void Update(Vector2 point, float deltatime)
         {
             
             if (AgeFrames <= 1)
@@ -124,7 +127,7 @@ namespace md.stdl.Interaction
             else
             {
                 Velocity = point - _prevPoint;
-                NormalizedVelocity = Velocity / deltaft;
+                NormalizedVelocity = Velocity / deltatime;
                 _prevPoint = Point;
                 Point = point;
             }

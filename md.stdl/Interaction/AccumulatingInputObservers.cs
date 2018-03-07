@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using md.stdl.Interfaces;
 using VVVV.Utils.IO;
 
 namespace md.stdl.Interaction
@@ -80,7 +81,7 @@ namespace md.stdl.Interaction
     /// <summary>
     /// Accumulating Mouser observer which preserves events between frames and transforms the data of those events into a meaningful form for a per-frame calculation.
     /// </summary>
-    public class AccumulatingMouseObserver : IObserver<MouseNotification>
+    public class AccumulatingMouseObserver : IObserver<MouseNotification>, IMainlooping
     {
         private IDisposable unsubscriber;
 
@@ -166,6 +167,15 @@ namespace md.stdl.Interaction
             }
         }
 
+        public event EventHandler OnMainLoopBegin;
+        public event EventHandler OnMainLoopEnd;
+        public void Mainloop(float deltatime)
+        {
+            OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
+            ResetAccumulation();
+            OnMainLoopEnd?.Invoke(this, EventArgs.Empty);
+        }
+
         /// <summary>
         /// Reset accumulation. Should be called in a mainloop kind of cycle
         /// </summary>
@@ -244,7 +254,7 @@ namespace md.stdl.Interaction
     /// <summary>
     /// Accumulating Keyboard observer which preserves events between frames and transforms the data of those events into a meaningful form for a per-frame calculation.
     /// </summary>
-    public class AccumulatingKeyboardObserver : IObserver<KeyNotification>
+    public class AccumulatingKeyboardObserver : IObserver<KeyNotification>, IMainlooping
     {
         private IDisposable unsubscriber;
 
@@ -280,6 +290,15 @@ namespace md.stdl.Interaction
                     }
                     break;
             }
+        }
+
+        public event EventHandler OnMainLoopBegin;
+        public event EventHandler OnMainLoopEnd;
+        public void Mainloop(float deltatime)
+        {
+            OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
+            ResetAccumulation();
+            OnMainLoopEnd?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

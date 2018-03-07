@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace md.stdl.Time
 {
+    /// <summary>
+    /// A Seekable version of Stopwatch
+    /// </summary>
     public class StopwatchInteractive : Stopwatch
     {
         private TimeSpan _timeOffset = TimeSpan.Zero;

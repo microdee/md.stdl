@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BooleanTests.cs" />
+    <Compile Include="OpaqTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringTests.cs" />
   </ItemGroup>

@@ -136,5 +136,56 @@ namespace md.stdl.Coding
             obj.Opaq(path, res, separator, dataKeysQuery, childrenKeysQuery, dataFromKey, childrenFromKey);
             return res;
         }
+
+        /// <summary>
+        /// Non recursive version of Opaq. General purpose object path query backend for accessing data with path like string and regex
+        /// </summary>
+        /// <typeparam name="TSrc">The source object type which contains the queryable data</typeparam>
+        /// <typeparam name="TChild">The type of children</typeparam>
+        /// <typeparam name="TData">The endpoint data type which is queried</typeparam>
+        /// <param name="obj">The source object which contains the queryable data</param>
+        /// <param name="path">The path with set separator. Each path component excluding the endpoint represents a source object level. The endpoint should yield the Data</param>
+        /// <param name="results">A list containing the resulting Data</param>
+        /// <param name="children">List of children which you would execute the recursive Opaq on</param>
+        /// <param name="separator">The separator string used to distinguish path components</param>
+        /// <param name="dataKeysQuery">(srcObject): possibleKeys; A function which returns the possible data key values for the next path component level</param>
+        /// <param name="childrenKeysQuery">(srcObject): possibleKeys; A function which returns the possible children key values for the next path component level</param>
+        /// <param name="dataFromKey">(srcObject, key): resultData; A function which returns data objects via an endpoint key </param>
+        /// <param name="childrenFromKey">(srcObject, key): nextObjects; A function which returns the objects to be queried for the next component level</param>
+        /// <remarks>Can be used for the situation when the first source element is not the same type as its children (for example a context or a container type). If the first level of the path is Data then children will be empty, otherwise when first level of the path is a Child, the results will be empty</remarks>
+        public static string OpaqNonRecursive<TSrc, TChild, TData>(
+            this TSrc obj,
+            string path,
+            List<TData> results,
+            List<TChild> children,
+            string separator,
+            Func<TSrc, IEnumerable<string>> dataKeysQuery,
+            Func<TSrc, IEnumerable<string>> childrenKeysQuery,
+            Func<TSrc, string, IEnumerable<TData>> dataFromKey,
+            Func<TSrc, string, IEnumerable<TChild>> childrenFromKey)
+        {
+            var levels = path.SplitIgnoringBetween(separator, "`");
+            string nextpath = string.Join(separator, levels, 1, levels.Length - 1);
+
+            if (levels[0][0] == '`' && levels[0][levels[0].Length - 1] == '`')
+            {
+                string key = levels[0].Trim('`');
+                Regex Pattern = new Regex(key);
+                foreach (string k in levels.Length == 1 ? dataKeysQuery(obj) : childrenKeysQuery(obj))
+                {
+                    if (Pattern.Match(k).Value == string.Empty) continue;
+                    if (levels.Length == 1)
+                        results.AddRange(dataFromKey(obj, k));
+                    else children.AddRange(childrenFromKey(obj, k));
+                }
+            }
+            else
+            {
+                if (levels.Length == 1)
+                    results.AddRange(dataFromKey(obj, levels[0]));
+                else children.AddRange(childrenFromKey(obj, levels[0]));
+            }
+            return nextpath;
+        }
     }
 }

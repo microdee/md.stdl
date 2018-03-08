@@ -51,29 +51,34 @@ namespace md.stdl.Coding
             }
         }
 
-        /// <summary>
-        /// Object PAth Query. General purpose object path query backend for accessing data with path like string and regex
-        /// </summary>
-        /// <typeparam name="TSrc">The source object type which contains the queryable data</typeparam>
-        /// <typeparam name="TData">The endpoint data type which is queried</typeparam>
-        /// <param name="obj">The source object which contains the queryable data</param>
-        /// <param name="path">The path with set separator. Each path component excluding the endpoint represents a source object level. The endpoint should yield the Data</param>
-        /// <param name="results">A list containing the resulting Data</param>
-        /// <param name="separator">The separator string used to distinguish path components</param>
-        /// <param name="dataKeysQuery">(srcObject): possibleKeys; A function which returns the possible data key values for the next path component level</param>
-        /// <param name="childrenKeysQuery">(srcObject): possibleKeys; A function which returns the possible children key values for the next path component level</param>
-        /// <param name="dataFromKey">(srcObject, key): resultData; A function which returns data objects via an endpoint key </param>
-        /// <param name="childrenFromKey">(srcObject, key): nextObjects; A function which returns the objects to be queried for the next component level</param>
-        public static void Opaq<TSrc, TData>(
+        private static void opaqAddResults<TData>(List<TData> results, IEnumerable<TData> data,
+            Func<TData, TData, bool> dataEqualityComparer = null)
+        {
+            foreach (var d in data)
+            {
+                bool contains = dataEqualityComparer == null ?
+                    results.Contains(d) :
+                    results.Any(o => dataEqualityComparer(d, o));
+                if(!contains)
+                    results.Add(d);
+            }
+        }
+        
+        private static void Opaq<TSrc, TData>(
             this TSrc obj,
             string path,
             List<TData> results,
+            List<TSrc> children,
             string separator,
             Func<TSrc, IEnumerable<string>> dataKeysQuery,
             Func<TSrc, IEnumerable<string>> childrenKeysQuery,
             Func<TSrc, string, IEnumerable<TData>> dataFromKey,
-            Func<TSrc, string, IEnumerable<TSrc>> childrenFromKey)
+            Func<TSrc, string, IEnumerable<TSrc>> childrenFromKey,
+            Func<TData, TData, bool> dataEqualityComparer = null,
+            Func<TSrc, TSrc, bool> childEqualityComparer = null)
         {
+            if(string.IsNullOrWhiteSpace(path)) return;
+
             var levels = path.SplitIgnoringBetween(separator, "`");
             string nextpath = string.Join(separator, levels, 1, levels.Length - 1);
 
@@ -81,7 +86,14 @@ namespace md.stdl.Coding
             {
                 foreach (var cobj in childrenFromKey(obj, currkey))
                 {
-                    cobj.Opaq(nextpath, results, separator, dataKeysQuery, childrenKeysQuery, dataFromKey, childrenFromKey);
+                    bool contains = childEqualityComparer == null ?
+                        children.Contains(cobj) :
+                        children.Any(o => childEqualityComparer(cobj, o));
+                    if (!contains)
+                    {
+                        children.Add(cobj);
+                        cobj.Opaq(nextpath, results, children, separator, dataKeysQuery, childrenKeysQuery, dataFromKey, childrenFromKey, dataEqualityComparer, childEqualityComparer);
+                    }
                 }
             }
             
@@ -93,9 +105,7 @@ namespace md.stdl.Coding
                 {
                     if (Pattern.Match(k).Value == string.Empty) continue;
                     if (levels.Length == 1)
-                    {
-                        results.AddRange(dataFromKey(obj, k));
-                    }
+                        opaqAddResults(results, dataFromKey(obj, k), dataEqualityComparer);
                     else NextStep(k);
                 }
             }
@@ -103,7 +113,7 @@ namespace md.stdl.Coding
             {
                 if (levels.Length == 1)
                 {
-                    results.AddRange(dataFromKey(obj, levels[0]));
+                    opaqAddResults(results, dataFromKey(obj, levels[0]), dataEqualityComparer);
                     return;
                 }
                 NextStep(levels[0]);
@@ -111,7 +121,7 @@ namespace md.stdl.Coding
         }
 
         /// <summary>
-        /// Object PAth Query. General purpose object path query backend for accessing data with path like string and regex
+        /// Object PAth Query. General purpose object path query backend for accessing data with path like string and regex. It will also check for duplicates before adding to the result
         /// </summary>
         /// <typeparam name="TSrc">The source object type which contains the queryable data</typeparam>
         /// <typeparam name="TData">The endpoint data type which is queried</typeparam>
@@ -122,7 +132,13 @@ namespace md.stdl.Coding
         /// <param name="childrenKeysQuery">(srcObject): possibleKeys; A function which returns the possible children key values for the next path component level</param>
         /// <param name="dataFromKey">(srcObject, key): resultData; A function which returns data objects via an endpoint key </param>
         /// <param name="childrenFromKey">(srcObject, key): nextObjects; A function which returns the objects to be queried for the next component level</param>
+        /// <param name="dataEqualityComparer">(a, b): equals; An optional function to use for deciding if the results already contains the queried data. If null, the built in Contains will be used</param>
+        /// <param name="childEqualityComparer">(a, b): equals; An optional function to use for deciding if the results already contains data from previous children. If null, the built in Contains will be used</param>
         /// <returns>A list containing the resulting Data</returns>
+        /// <remarks>
+        /// This is a very generic method, Implementing simplified extension method versions for your class structure is recommended
+        /// If you set data~ or childEqualityComparer to return always false you can turn off the duplication checking in either the children discovered or the results list.
+        /// </remarks>
         public static List<TData> Opaq<TSrc, TData>(
             this TSrc obj,
             string path,
@@ -130,10 +146,13 @@ namespace md.stdl.Coding
             Func<TSrc, IEnumerable<string>> dataKeysQuery,
             Func<TSrc, IEnumerable<string>> childrenKeysQuery,
             Func<TSrc, string, IEnumerable<TData>> dataFromKey,
-            Func<TSrc, string, IEnumerable<TSrc>> childrenFromKey)
+            Func<TSrc, string, IEnumerable<TSrc>> childrenFromKey,
+            Func<TData, TData, bool> dataEqualityComparer = null,
+            Func<TSrc, TSrc, bool> childEqualityComparer = null)
         {
             var res = new List<TData>();
-            obj.Opaq(path, res, separator, dataKeysQuery, childrenKeysQuery, dataFromKey, childrenFromKey);
+            var children = new List<TSrc>();
+            obj.Opaq(path, res, children, separator, dataKeysQuery, childrenKeysQuery, dataFromKey, childrenFromKey, dataEqualityComparer, childEqualityComparer);
             return res;
         }
 
@@ -152,7 +171,12 @@ namespace md.stdl.Coding
         /// <param name="childrenKeysQuery">(srcObject): possibleKeys; A function which returns the possible children key values for the next path component level</param>
         /// <param name="dataFromKey">(srcObject, key): resultData; A function which returns data objects via an endpoint key </param>
         /// <param name="childrenFromKey">(srcObject, key): nextObjects; A function which returns the objects to be queried for the next component level</param>
-        /// <remarks>Can be used for the situation when the first source element is not the same type as its children (for example a context or a container type). If the first level of the path is Data then children will be empty, otherwise when first level of the path is a Child, the results will be empty</remarks>
+        /// <param name="dataEqualityComparer">(a, b): equals; An optional function to use for deciding if the results already contains the queried data. If null, the built in Contains will be used</param>
+        /// <param name="childEqualityComparer">(a, b): equals; An optional function to use for deciding if the results already contains data from previous children. If null, the built in Contains will be used</param>
+        /// <remarks>
+        /// Can be used for the situation when the first source element is not the same type as its children (for example a context or a container type). If the first level of the path is Data then children will be empty, otherwise when first level of the path is a Child, the results will be empty
+        /// If you set dataEqualityComparer to return always false you can turn off the duplication checking.
+        /// </remarks>
         public static string OpaqNonRecursive<TSrc, TChild, TData>(
             this TSrc obj,
             string path,
@@ -162,7 +186,9 @@ namespace md.stdl.Coding
             Func<TSrc, IEnumerable<string>> dataKeysQuery,
             Func<TSrc, IEnumerable<string>> childrenKeysQuery,
             Func<TSrc, string, IEnumerable<TData>> dataFromKey,
-            Func<TSrc, string, IEnumerable<TChild>> childrenFromKey)
+            Func<TSrc, string, IEnumerable<TChild>> childrenFromKey,
+            Func<TData, TData, bool> dataEqualityComparer = null,
+            Func<TChild, TChild, bool> childEqualityComparer = null)
         {
             var levels = path.SplitIgnoringBetween(separator, "`");
             string nextpath = string.Join(separator, levels, 1, levels.Length - 1);
@@ -175,15 +201,15 @@ namespace md.stdl.Coding
                 {
                     if (Pattern.Match(k).Value == string.Empty) continue;
                     if (levels.Length == 1)
-                        results.AddRange(dataFromKey(obj, k));
-                    else children.AddRange(childrenFromKey(obj, k));
+                        opaqAddResults(results, dataFromKey(obj, k), dataEqualityComparer);
+                    else opaqAddResults(children, childrenFromKey(obj, k), childEqualityComparer);
                 }
             }
             else
             {
                 if (levels.Length == 1)
-                    results.AddRange(dataFromKey(obj, levels[0]));
-                else children.AddRange(childrenFromKey(obj, levels[0]));
+                    opaqAddResults(results, dataFromKey(obj, levels[0]), dataEqualityComparer);
+                else opaqAddResults(children, childrenFromKey(obj, levels[0]), childEqualityComparer);
             }
             return nextpath;
         }

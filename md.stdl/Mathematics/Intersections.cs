@@ -45,12 +45,14 @@ namespace md.stdl.Mathematics
         /// <param name="planeTr">Plane transformation. The XY plane is used which is looking at the Z+ forward camera (normal(0,0,-1))</param>
         /// <param name="isPoint">The intersection point in world space. 0 if no intersection.</param>
         /// <param name="pointOnPlane">The point in the plane's original space</param>
+        /// <param name="doubleSided">If true ray is hitting the plane also when it's facing away from the ray</param>
         /// <returns>Intersection happens or not</returns>
-        public static bool PlaneRay(Vector3 rayOrigin, Vector3 rayDir, Matrix4x4 planeTr, out Vector3 isPoint, out Vector3 pointOnPlane)
+        public static bool PlaneRay(Vector3 rayOrigin, Vector3 rayDir, Matrix4x4 planeTr, out Vector3 isPoint, out Vector3 pointOnPlane, bool doubleSided = true)
         {
             var norm = Vector3.TransformNormal(new Vector3(0, 0, 1), planeTr);
             var pos = planeTr.Translation;
             var ishit = PlaneRay(rayOrigin, rayDir, pos, norm, out var wpoint);
+            if (!ishit && doubleSided) ishit = PlaneRay(rayOrigin, rayDir, pos, -norm, out wpoint);
             if (ishit)
             {
                 isPoint = wpoint;

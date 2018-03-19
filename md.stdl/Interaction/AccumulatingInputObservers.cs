@@ -38,6 +38,16 @@ namespace md.stdl.Interaction
         public bool DoubleClick { get; private set; }
 
         /// <summary>
+        /// Were there a button-down event recently
+        /// </summary>
+        public bool ButtonDown { get; private set; }
+
+        /// <summary>
+        /// Were there a button-up / released event recently
+        /// </summary>
+        public bool ButtonUp { get; private set; }
+
+        /// <summary>
         /// Stopwatch measuring time between clicks
         /// </summary>
         public Stopwatch TimeSinceClicked { get; set; } = new Stopwatch();
@@ -54,7 +64,7 @@ namespace md.stdl.Interaction
         public void Reset()
         {
             ClickCount = 0;
-            DoubleClick = false;
+            DoubleClick = ButtonUp = ButtonDown = false;
         }
 
         /// <summary>
@@ -63,6 +73,7 @@ namespace md.stdl.Interaction
         public void Press()
         {
             ClickCount++;
+            ButtonDown = true;
             _internalPressed = true;
         }
 
@@ -71,6 +82,7 @@ namespace md.stdl.Interaction
         /// </summary>
         public void Release()
         {
+            ButtonUp = true;
             _internalPressed = false;
             if (TimeSinceClicked.Elapsed.TotalSeconds < 0.18)
                 DoubleClick = true;

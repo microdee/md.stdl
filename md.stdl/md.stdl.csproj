@@ -150,6 +150,7 @@
     <Compile Include="Coding\Reflection.cs" />
     <Compile Include="String\StringDistance.cs" />
     <Compile Include="String\StringExtensions.cs" />
+    <Compile Include="Time\Delay.cs" />
     <Compile Include="Time\StopwatchInteractive.cs" />
     <Compile Include="Windows\MessageOnlyWindow.cs" />
   </ItemGroup>

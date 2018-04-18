@@ -75,17 +75,19 @@ namespace md.stdl.Mathematics
         #endregion
 
         #region Velocity
+
         /// <summary>
         /// Simple velocity driven filter
         /// </summary>
         /// <param name="prevpos">Previous position</param>
         /// <param name="target">Target position</param>
         /// <param name="velocity">Maximum velocity</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
-        public static float Velocity(float prevpos, float target, float velocity)
+        public static float Velocity(float prevpos, float target, float velocity, float epsilon = 0.00001f)
         {
             var d = target - prevpos;
-            if (Abs(d) < 0.00001) return target;
+            if (Abs(d) < epsilon) return target;
             return prevpos + Sign(d) * Min(velocity, Abs(d));
         }
         /// <summary>
@@ -94,10 +96,11 @@ namespace md.stdl.Mathematics
         /// <param name="prevpos">Previous position</param>
         /// <param name="target">Target position</param>
         /// <param name="velocity">Maximum velocity</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
-        public static Vector2 Velocity(Vector2 prevpos, Vector2 target, float velocity)
+        public static Vector2 Velocity(Vector2 prevpos, Vector2 target, float velocity, float epsilon = 0.00001f)
         {
-            if (Vector2.Distance(target, prevpos) < 0.00001) return target;
+            if (Vector2.Distance(target, prevpos) < epsilon) return target;
             var d = target - prevpos;
             return prevpos + Vector2.Normalize(d) * Min(velocity, d.Length());
         }
@@ -107,10 +110,11 @@ namespace md.stdl.Mathematics
         /// <param name="prevpos">Previous position</param>
         /// <param name="target">Target position</param>
         /// <param name="velocity">Maximum velocity</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
-        public static Vector3 Velocity(Vector3 prevpos, Vector3 target, float velocity)
+        public static Vector3 Velocity(Vector3 prevpos, Vector3 target, float velocity, float epsilon = 0.00001f)
         {
-            if (Vector3.Distance(target, prevpos) < 0.00001) return target;
+            if (Vector3.Distance(target, prevpos) < epsilon) return target;
             var d = target - prevpos;
             return prevpos + Vector3.Normalize(d) * Min(velocity, d.Length());
         }
@@ -120,10 +124,11 @@ namespace md.stdl.Mathematics
         /// <param name="prevpos">Previous position</param>
         /// <param name="target">Target position</param>
         /// <param name="velocity">Maximum velocity</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
-        public static Vector4 Velocity(Vector4 prevpos, Vector4 target, float velocity)
+        public static Vector4 Velocity(Vector4 prevpos, Vector4 target, float velocity, float epsilon = 0.00001f)
         {
-            if (Vector4.Distance(target, prevpos) < 0.00001) return target;
+            if (Vector4.Distance(target, prevpos) < epsilon) return target;
             var d = target - prevpos;
             return prevpos + Vector4.Normalize(d) * Min(velocity, d.Length());
         }
@@ -133,11 +138,12 @@ namespace md.stdl.Mathematics
         /// <param name="prevpos">Previous position</param>
         /// <param name="target">Target position</param>
         /// <param name="velocity">Maximum velocity</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
-        public static Quaternion Velocity(Quaternion prevpos, Quaternion target, float velocity)
+        public static Quaternion Velocity(Quaternion prevpos, Quaternion target, float velocity, float epsilon = 0.00001f)
         {
             var d = target - prevpos;
-            if (d.Length() < 0.00001) return target;
+            if (d.Length() < epsilon) return target;
             return prevpos + Quaternion.Normalize(d) * Min(velocity, d.Length());
         }
         #endregion
@@ -252,6 +258,96 @@ namespace md.stdl.Mathematics
             var f = Quaternion.Normalize(d) * Min(force, d.Length());
             newvel = prevvel + f;
             newpos = prevpos + newvel;
+        }
+        #endregion
+
+        #region Damper
+
+        /// <summary>
+        /// Time based filter with similar curve to Lowpass but with more precise control
+        /// </summary>
+        /// <param name="previous">Previous position</param>
+        /// <param name="target">Target position</param>
+        /// <param name="time">Amount of time filtering should take to reach target</param>
+        /// <param name="deltaTime">Amount of time between updates</param>
+        /// <param name="minSpeed">Minimum speed while approaching target (in unit/time)</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
+        /// <returns>New position</returns>
+        public static float Damper(float previous, float target, float time, float deltaTime, float minSpeed = 0.001f, float epsilon = 0.00001f)
+        {
+            // TODO: that 6 there is a rough estimation magic number coming from a vague memory of the integral of something something low-pass filter
+            // It was years ago, only the 6 part stuck and it was good enough for animation
+            var frametime = (6 / time) * deltaTime;
+            var dist = Abs(target - previous);
+            return Velocity(previous, target, frametime * Max(minSpeed, dist), epsilon);
+        }
+
+        /// <summary>
+        /// Time based filter with similar curve to Lowpass but with more precise control
+        /// </summary>
+        /// <param name="previous">Previous position</param>
+        /// <param name="target">Target position</param>
+        /// <param name="time">Amount of time filtering should take to reach target</param>
+        /// <param name="deltaTime">Amount of time between updates</param>
+        /// <param name="minSpeed">Minimum speed while approaching target (in unit/time)</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
+        /// <returns>New position</returns>
+        public static Vector2 Damper(Vector2 previous, Vector2 target, float time, float deltaTime, float minSpeed = 0.001f, float epsilon = 0.00001f)
+        {
+            var frametime = (6 / time) * deltaTime;
+            var dist = Vector2.Distance(previous, target);
+            return Velocity(previous, target, frametime * Max(minSpeed, dist), epsilon);
+        }
+
+        /// <summary>
+        /// Time based filter with similar curve to Lowpass but with more precise control
+        /// </summary>
+        /// <param name="previous">Previous position</param>
+        /// <param name="target">Target position</param>
+        /// <param name="time">Amount of time filtering should take to reach target</param>
+        /// <param name="deltaTime">Amount of time between updates</param>
+        /// <param name="minSpeed">Minimum speed while approaching target (in unit/time)</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
+        /// <returns>New position</returns>
+        public static Vector3 Damper(Vector3 previous, Vector3 target, float time, float deltaTime, float minSpeed = 0.001f, float epsilon = 0.00001f)
+        {
+            var frametime = (6 / time) * deltaTime;
+            var dist = Vector3.Distance(previous, target);
+            return Velocity(previous, target, frametime * Max(minSpeed, dist), epsilon);
+        }
+
+        /// <summary>
+        /// Time based filter with similar curve to Lowpass but with more precise control
+        /// </summary>
+        /// <param name="previous">Previous position</param>
+        /// <param name="target">Target position</param>
+        /// <param name="time">Amount of time filtering should take to reach target</param>
+        /// <param name="deltaTime">Amount of time between updates</param>
+        /// <param name="minSpeed">Minimum speed while approaching target (in unit/time)</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
+        /// <returns>New position</returns>
+        public static Vector4 Damper(Vector4 previous, Vector4 target, float time, float deltaTime, float minSpeed = 0.001f, float epsilon = 0.00001f)
+        {
+            var frametime = (6 / time) * deltaTime;
+            var dist = Vector4.Distance(previous, target);
+            return Velocity(previous, target, frametime * Max(minSpeed, dist), epsilon);
+        }
+
+        /// <summary>
+        /// Time based filter with similar curve to Lowpass but with more precise control
+        /// </summary>
+        /// <param name="previous">Previous position</param>
+        /// <param name="target">Target position</param>
+        /// <param name="time">Amount of time filtering should take to reach target</param>
+        /// <param name="deltaTime">Amount of time between updates</param>
+        /// <param name="minSpeed">Minimum speed while approaching target (in unit/time)</param>
+        /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
+        /// <returns>New position</returns>
+        public static Quaternion Damper(Quaternion previous, Quaternion target, float time, float deltaTime, float minSpeed = 0.001f, float epsilon = 0.00001f)
+        {
+            var frametime = (6 / time) * deltaTime;
+            var dist = (target - previous).Length();
+            return Velocity(previous, target, frametime * Max(minSpeed, dist), epsilon);
         }
         #endregion
     }

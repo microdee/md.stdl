@@ -38,37 +38,41 @@ namespace md.stdl.Time
         public event EventHandler OnMainLoopEnd;
         public event EventHandler OnTriggerPassed;
 
-        private readonly Dictionary<TimeSpan, bool> _triggers = new Dictionary<TimeSpan, bool>();
+        private readonly List<(TimeSpan time, bool passed)> _triggers = new List<(TimeSpan time, bool passed)>();
 
         public void SetTrigger(params TimeSpan[] triggers)
         {
             _triggers.Clear();
             foreach (var time in triggers)
             {
-                if(_triggers.ContainsKey(time)) continue;
-                _triggers.Add(time, Elapsed >= time);
+                _triggers.Add((time, false));
             }
         }
 
         public void ResetTriggers()
         {
-            foreach (var time in _triggers.Keys)
+            for (int i = 0; i < _triggers.Count; i++)
             {
-                _triggers[time] = false;
+                var trig = _triggers[i];
+                trig.passed = false;
+                _triggers[i] = trig;
             }
         }
 
         public void Mainloop(float deltatime)
         {
             OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
-            
-            foreach (var trigger in _triggers.Keys)
+
+            for (int i = 0; i < _triggers.Count; i++)
             {
-                if (Elapsed >= trigger && !_triggers[trigger])
+                var trig = _triggers[i];
+
+                if (Elapsed >= trig.time && !trig.passed)
                 {
                     OnTriggerPassed?.Invoke(this, EventArgs.Empty);
-                    _triggers[trigger] = true;
+                    trig.passed = true;
                 }
+                _triggers[i] = trig;
             }
 
             OnMainLoopEnd?.Invoke(this, EventArgs.Empty);

@@ -21,8 +21,17 @@ namespace md.stdl.Interaction
     /// <remarks>Creates and manages multiple instances of the observable VVVV.Utils.IO.Keyboard which will then provide notifications about keyboard events</remarks>
     public class KeyboardInputManager : DesktopDeviceInputManager<Keyboard>
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public KeyboardInputManager() : base(DeviceType.Keyboard) { }
 
+        /// <summary>
+        /// Create a keyboard device
+        /// </summary>
+        /// <param name="deviceInfo">RawInput device info</param>
+        /// <param name="index">Index of the device</param>
+        /// <returns></returns>
         protected override Keyboard CreateDevice(DeviceInfo deviceInfo, int index)
         {
             var notifications = Observable.FromEventPattern<KeyboardInputEventArgs>(typeof(Device), "KeyboardInput")
@@ -33,6 +42,11 @@ namespace md.stdl.Interaction
             return new Keyboard(notifications, true);
         }
 
+        /// <summary>
+        /// Create a merged Keyboard device combining data from all the keyboards connected
+        /// </summary>
+        /// <param name="index">Index of the device</param>
+        /// <returns></returns>
         protected override Keyboard CreateMergedDevice(int index)
         {
             var notifications = Observable.FromEventPattern<KeyboardInputEventArgs>(typeof(Device), "KeyboardInput")
@@ -42,6 +56,10 @@ namespace md.stdl.Interaction
             return new Keyboard(notifications, true);
         }
 
+        /// <summary>
+        /// Create a device which does nothing
+        /// </summary>
+        /// <returns></returns>
         protected override Keyboard CreateDummy()
         {
             return Keyboard.Empty;

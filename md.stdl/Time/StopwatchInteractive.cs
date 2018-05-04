@@ -17,10 +17,17 @@ namespace md.stdl.Time
     {
         private TimeSpan _timeOffset = TimeSpan.Zero;
 
+        /// <inheritdoc cref="Stopwatch"/>
         public new TimeSpan Elapsed => base.Elapsed + _timeOffset;
+        /// <inheritdoc cref="Stopwatch"/>
         public new long ElapsedMilliseconds => base.ElapsedMilliseconds + (long)_timeOffset.TotalMilliseconds;
+        /// <inheritdoc cref="Stopwatch"/>
         public new long ElapsedTicks => base.ElapsedTicks + _timeOffset.Ticks;
 
+        /// <summary>
+        /// Set time immediately
+        /// </summary>
+        /// <param name="time"></param>
         public void SetTime(TimeSpan time)
         {
             _timeOffset = time;
@@ -33,13 +40,22 @@ namespace md.stdl.Time
                 Reset();
             }
         }
-
+        /// <inheritdoc cref="IMainlooping"/>
         public event EventHandler OnMainLoopBegin;
+        /// <inheritdoc cref="IMainlooping"/>
         public event EventHandler OnMainLoopEnd;
+
+        /// <summary>
+        /// Fired when a trigger is passed
+        /// </summary>
         public event EventHandler OnTriggerPassed;
 
         private readonly List<(TimeSpan time, bool passed)> _triggers = new List<(TimeSpan time, bool passed)>();
 
+        /// <summary>
+        /// Set a list of triggers when the OnTriggerPassed should be invoked
+        /// </summary>
+        /// <param name="triggers"></param>
         public void SetTrigger(params TimeSpan[] triggers)
         {
             _triggers.Clear();
@@ -49,6 +65,9 @@ namespace md.stdl.Time
             }
         }
 
+        /// <summary>
+        /// Reset triggers to an untriggered state
+        /// </summary>
         public void ResetTriggers()
         {
             for (int i = 0; i < _triggers.Count; i++)
@@ -59,6 +78,7 @@ namespace md.stdl.Time
             }
         }
 
+        /// <inheritdoc cref="IMainlooping"/>
         public void Mainloop(float deltatime)
         {
             OnMainLoopBegin?.Invoke(this, EventArgs.Empty);

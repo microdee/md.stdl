@@ -39,6 +39,9 @@ namespace md.stdl.Coding
         }
     }
 
+    /// <summary>
+    /// Extension methods for observables
+    /// </summary>
     public static class ObservableExtensions
     {
         /// <summary>

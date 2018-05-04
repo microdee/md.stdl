@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace md.stdl.Interfaces
 {
+    /// <summary>
+    /// An interface generalizing per-frame/mainlooping behavior
+    /// </summary>
     public interface IMainlooping
     {
         /// <summary>

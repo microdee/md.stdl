@@ -16,6 +16,7 @@ using VVVV.Utils.Win32;
 // originally maintained and developed by the VVVV Group and their community
 // for copyright info see credits.md
 
+#pragma warning disable CS1591
 namespace md.stdl.Interaction
 {
     class DeviceComparer : IComparer<DeviceInfo>
@@ -262,3 +263,5 @@ namespace md.stdl.Interaction
         }
     }
 }
+
+#pragma warning restore CS1591

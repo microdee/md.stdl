@@ -11,8 +11,12 @@ using VVVV.Utils.Animation;
 
 namespace md.stdl.Interaction
 {
+    /// <summary>
+    /// Equality comparer for touches.
+    /// </summary>
     public class TouchEqualityComparer : IEqualityComparer<TouchContainer>
     {
+#pragma warning disable CS1591
         public bool Equals(TouchContainer x, TouchContainer y)
         {
             if (x == null && y == null) return true;
@@ -24,6 +28,7 @@ namespace md.stdl.Interaction
         {
             return obj.Id;
         }
+#pragma warning restore CS1591
     }
     /// <inheritdoc />
     /// <summary>
@@ -134,6 +139,11 @@ namespace md.stdl.Interaction
             ExpireFrames = 0;
         }
 
+        /// <summary>
+        /// Touch equality only depends on its ID. This make it easier to manage them into Dictionaries
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             switch (obj)
@@ -147,6 +157,10 @@ namespace md.stdl.Interaction
             }
         }
 
+        /// <summary>
+        /// Touch equality only depends on its ID. This make it easier to manage them into Dictionaries
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return Id;
@@ -160,6 +174,9 @@ namespace md.stdl.Interaction
     /// <typeparam name="T">Type of attached object</typeparam>
     public class TouchContainer<T> : TouchContainer
     {
+        /// <summary>
+        /// Strongly typed attached object
+        /// </summary>
         public T AttachedObject
         {
             get => (T) CustomAttachedObject;
@@ -168,6 +185,9 @@ namespace md.stdl.Interaction
         public TouchContainer(int id) : base(id) { }
     }
 
+    /// <summary>
+    /// A touch with 1€ filtering
+    /// </summary>
     public class FilteredTouch : TouchContainer
     {
         /// <summary>
@@ -279,6 +299,9 @@ namespace md.stdl.Interaction
     /// <typeparam name="T">Type of attached object</typeparam>
     public class FilteredTouch<T> : FilteredTouch
     {
+        /// <summary>
+        /// Strongly typed attached object
+        /// </summary>
         public T AttachedObject
         {
             get => (T)CustomAttachedObject;

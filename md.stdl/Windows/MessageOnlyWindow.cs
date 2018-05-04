@@ -8,8 +8,12 @@ using md.stdl.Interaction;
 using SharpDX.RawInput;
 using VVVV.Utils.Win32;
 
+#pragma warning disable CS1591
 namespace md.stdl.Windows
 {
+    /// <summary>
+    /// An invisible forms window which only receives WM messages
+    /// </summary>
     public class MessageOnlyWindow : NativeWindow, IDisposable
     {
         public MessageOnlyWindow()
@@ -50,3 +54,4 @@ namespace md.stdl.Windows
         public event EventHandler<Message> OnWndProc;
     }
 }
+#pragma warning restore CS1591

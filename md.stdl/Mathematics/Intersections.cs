@@ -8,6 +8,9 @@ using static System.Math;
 
 namespace md.stdl.Mathematics
 {
+    /// <summary>
+    /// Methods for intersections between primitives/solids
+    /// </summary>
     public static class Intersections
     {
         /// <summary>
@@ -65,12 +68,27 @@ namespace md.stdl.Mathematics
             return false;
         }
 
+        /// <summary>
+        /// Is a point located in a box
+        /// </summary>
+        /// <param name="boxmin">Box bounds minimum</param>
+        /// <param name="boxmax">Box bounds maximum</param>
+        /// <param name="point">Point in question</param>
+        /// <returns></returns>
         public static bool BoxPoint(Vector3 boxmin, Vector3 boxmax, Vector3 point)
         {
             return point.X >= boxmin.X && point.X <= boxmax.X &&
                    point.Y >= boxmin.Y && point.Y <= boxmax.Y &&
                    point.Z >= boxmin.Z && point.Z <= boxmax.Z;
         }
+
+        /// <summary>
+        /// Limit points to the boundaries of a box
+        /// </summary>
+        /// <param name="boxmin">Box bounds minimum</param>
+        /// <param name="boxmax">Box bounds maximum</param>
+        /// <param name="point">Point in question</param>
+        /// <returns>The point limited inside the boundaries of the box</returns>
         public static Vector3 BoxPointLimit(Vector3 boxmin, Vector3 boxmax, Vector3 point)
         {
             return new Vector3(

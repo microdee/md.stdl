@@ -14,5 +14,8 @@
     <releaseNotes>none</releaseNotes>
     <copyright>Copyright © 2017 by David Mórász</copyright>
     <tags>utility qrcode rawinput keyboard mouse touch</tags>
+    <files>
+      <file src="bin\Debug\md.stdl.xml" target="lib\Net47" />
+    </files>
   </metadata>
 </package>

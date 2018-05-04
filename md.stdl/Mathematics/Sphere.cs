@@ -8,12 +8,19 @@ using VVVV.Utils.VMath;
 
 namespace md.stdl.Mathematics
 {
+    /// <summary>
+    /// Simple angle mode
+    /// </summary>
     public enum AngleMode
     {
         Degrees,
         Radians,
         Cycles
     }
+
+    /// <summary>
+    /// Sphere related functions
+    /// </summary>
     public static class Sphere
     {
         /// <summary>

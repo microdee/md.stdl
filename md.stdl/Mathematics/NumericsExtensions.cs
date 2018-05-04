@@ -8,8 +8,12 @@ using VVVV.Utils.VMath;
 using VMatrix = VVVV.Utils.VMath.Matrix4x4;
 using SMatrix = System.Numerics.Matrix4x4;
 
+#pragma warning disable CS1591
 namespace md.stdl.Mathematics
 {
+    /// <summary>
+    /// Extension methods for System.Numerics
+    /// </summary>
     public static class NumericsExtensions
     {
         public static Vector2 xy(this Vector3 a) { return new Vector2(a.X, a.Y); }
@@ -90,3 +94,4 @@ namespace md.stdl.Mathematics
         }
     }
 }
+#pragma warning restore CS1591

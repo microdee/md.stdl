@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SimMetrics.Net.API;
 using SimMetrics.Net.Metric;
 
+#pragma warning disable CS1591
 namespace md.stdl.String
 {
     public struct StringDistanceResult
@@ -81,3 +82,5 @@ namespace md.stdl.String
         }
     }
 }
+
+#pragma warning restore CS1591

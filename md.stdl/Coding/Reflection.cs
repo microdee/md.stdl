@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace md.stdl.Coding
 {
+    /// <summary>
+    /// Extension methods relating to reflection and types
+    /// </summary>
     public static class ReflectionExtensions
     {
         /// <summary>

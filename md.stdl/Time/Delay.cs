@@ -16,6 +16,9 @@ namespace md.stdl.Time
     /// </summary>
     public abstract class DelayTypeMeta
     {
+        /// <summary>
+        /// Type of the delayable value
+        /// </summary>
         public Type ValueType { get; protected set; }
     }
 
@@ -24,10 +27,20 @@ namespace md.stdl.Time
     /// </summary>
     public class DelayTypeMeta<T> : DelayTypeMeta
     {
+        /// <summary>
+        /// (old, new, lerp): result; Intraframe interpolation function for your value.
+        /// </summary>
         public Func<T, T, float, T> Interpolator { get; set; }
+        /// <summary>
+        /// (original): clone; Copy function if your type is reference type. If null simple assignment is used.
+        /// </summary>
         public Func<T, T> Copier { get; set; }
+        /// <summary>
+        /// Default of your value. Used if there's no data available yet.
+        /// </summary>
         public T Default { get; set; }
 
+        /// <summary></summary>
         public DelayTypeMeta()
         {
             ValueType = typeof(T);

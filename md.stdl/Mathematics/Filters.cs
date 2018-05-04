@@ -9,6 +9,9 @@ using static System.Math;
 
 namespace md.stdl.Mathematics
 {
+    /// <summary>
+    /// Static methods for temporally filtering values
+    /// </summary>
     public static class Filters
     {
         #region Lowpass

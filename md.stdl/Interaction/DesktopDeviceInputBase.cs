@@ -12,9 +12,19 @@ using SharpDX.RawInput;
 
 namespace md.stdl.Interaction
 {
+    /// <summary>
+    /// Eventargs for changing devices
+    /// </summary>
+    /// <typeparam name="TDevice"></typeparam>
     public class DeviceListChangedEventArgs<TDevice> : EventArgs
     {
+        /// <summary>
+        /// Old devices before the change
+        /// </summary>
         public TDevice[] OldDevices;
+        /// <summary>
+        /// new / current devices
+        /// </summary>
         public TDevice[] NewDevices;
     }
     /// <summary>
@@ -43,6 +53,9 @@ namespace md.stdl.Interaction
         /// <remarks>In this event ideally the implementer should unsubscribe from old devices.</remarks>
         public event EventHandler<DeviceListChangedEventArgs<TDevice>> DeviceListChanged;
 
+        /// <summary>
+        /// Selected device ID's
+        /// </summary>
         protected int[] SelectedDevices = {-1};
 
         private readonly DeviceType DevType;

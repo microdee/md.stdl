@@ -30,12 +30,21 @@ namespace md.stdl.Interaction
         /// <remarks>In case of cursor source only a single merged device wrapper is created</remarks>
         public enum DataSource
         {
+            /// <summary>
+            /// Cursor position on the desktop
+            /// </summary>
             Cursor,
+            /// <summary>
+            /// Data is directly read from the mouse through RawInput
+            /// </summary>
             Raw
         }
 
         private DataSource _dataSource = DataSource.Raw;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public MouseInputManager() : base(DeviceType.Mouse) { }
 
         /// <summary>
@@ -54,6 +63,9 @@ namespace md.stdl.Interaction
             public Point Position;
         }
 
+        /// <summary>
+        /// Subscribe to devices
+        /// </summary>
         protected override void SubscribeToDevices()
         {
             if (_dataSource == DataSource.Cursor)
@@ -66,6 +78,12 @@ namespace md.stdl.Interaction
             }
         }
 
+        /// <summary>
+        /// Create a mouse device
+        /// </summary>
+        /// <param name="deviceInfo">RawInput device info</param>
+        /// <param name="index">Index of the device</param>
+        /// <returns></returns>
         protected override Mouse CreateDevice(DeviceInfo deviceInfo, int index)
         {
             var initialPosition = Control.MousePosition;
@@ -77,6 +95,11 @@ namespace md.stdl.Interaction
             return new Mouse(notifications);
         }
 
+        /// <summary>
+        /// Create a merged mouse device combining data from all the mice connected
+        /// </summary>
+        /// <param name="index">Index of the device</param>
+        /// <returns></returns>
         protected override Mouse CreateMergedDevice(int index)
         {
             var initialPosition = Control.MousePosition;
@@ -87,6 +110,10 @@ namespace md.stdl.Interaction
             return new Mouse(notifications);
         }
 
+        /// <summary>
+        /// Create a device which does nothing
+        /// </summary>
+        /// <returns></returns>
         protected override Mouse CreateDummy()
         {
             return Mouse.Empty;

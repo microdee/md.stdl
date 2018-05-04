@@ -15,6 +15,9 @@ using VVVV.Utils.Win32;
 
 namespace md.stdl.Interaction
 {
+    /// <summary>
+    /// RawInput service backing up mouse and keyboard listeners
+    /// </summary>
     public class RawInputService
     {
 

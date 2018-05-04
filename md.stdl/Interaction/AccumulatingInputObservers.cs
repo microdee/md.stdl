@@ -52,6 +52,10 @@ namespace md.stdl.Interaction
         /// </summary>
         public Stopwatch TimeSinceClicked { get; set; } = new Stopwatch();
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="button">The button this AccumulatingMouseClick is assigned to</param>
         public AccumulatingMouseClick(MouseButtons button)
         {
             Button = button;
@@ -90,6 +94,7 @@ namespace md.stdl.Interaction
         }
     }
 
+    /// <inheritdoc cref="IMainlooping"/>
     /// <summary>
     /// Accumulating Mouser observer which preserves events between frames and transforms the data of those events into a meaningful form for a per-frame calculation.
     /// </summary>
@@ -144,7 +149,10 @@ namespace md.stdl.Interaction
                 { MouseButtons.XButton2, new AccumulatingMouseClick(MouseButtons.XButton2) }
             };
         }
-
+        /// <summary>
+        /// Next
+        /// </summary>
+        /// <param name="value">Next notification</param>
         public void OnNext(MouseNotification value)
         {
             switch (value.Kind)
@@ -179,8 +187,11 @@ namespace md.stdl.Interaction
             }
         }
 
+        /// <inheritdoc cref="IMainlooping"/>
         public event EventHandler OnMainLoopBegin;
+        /// <inheritdoc cref="IMainlooping"/>
         public event EventHandler OnMainLoopEnd;
+        /// <inheritdoc cref="IMainlooping"/>
         public void Mainloop(float deltatime)
         {
             OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
@@ -202,10 +213,12 @@ namespace md.stdl.Interaction
             }
         }
 
+        /// <inheritdoc cref="IObservable{T}"/>
         public void OnError(Exception error) { }
 
+        /// <inheritdoc cref="IObservable{T}"/>
         public void OnCompleted() { }
-
+        
         public void SubscribeTo(IObservable<MouseNotification> mouse)
         {
             unsubscriber = mouse?.Subscribe(this);
@@ -221,6 +234,9 @@ namespace md.stdl.Interaction
     /// </summary>
     public class AccumulatingKeyPress : ICloneable
     {
+        /// <summary>
+        /// The key this AccumulatingKeyPress is assigned to
+        /// </summary>
         public Keys KeyCode { get; set; }
 
         /// <summary>
@@ -240,6 +256,9 @@ namespace md.stdl.Interaction
             _internalPressed = true;
         }
 
+        /// <summary>
+        /// reset keypress count between samples
+        /// </summary>
         public void Reset()
         {
             Count = 0;
@@ -253,6 +272,7 @@ namespace md.stdl.Interaction
             _internalPressed = false;
         }
 
+        /// <inheritdoc cref="ICloneable"/>
         public object Clone()
         {
             return new AccumulatingKeyPress()
@@ -275,6 +295,7 @@ namespace md.stdl.Interaction
         /// </summary>
         public Dictionary<Keys, AccumulatingKeyPress> Keypresses { get; } = new Dictionary<Keys, AccumulatingKeyPress>();
 
+        /// <inheritdoc cref="IObservable{T}"/>
         public void OnNext(KeyNotification value)
         {
             switch (value.Kind)
@@ -304,8 +325,11 @@ namespace md.stdl.Interaction
             }
         }
 
+        /// <inheritdoc cref="IMainlooping"/>
         public event EventHandler OnMainLoopBegin;
+        /// <inheritdoc cref="IMainlooping"/>
         public event EventHandler OnMainLoopEnd;
+        /// <inheritdoc cref="IMainlooping"/>
         public void Mainloop(float deltatime)
         {
             OnMainLoopBegin?.Invoke(this, EventArgs.Empty);
@@ -330,8 +354,10 @@ namespace md.stdl.Interaction
             }
         }
 
+        /// <inheritdoc cref="IObservable{T}"/>
         public void OnError(Exception error) { }
 
+        /// <inheritdoc cref="IObservable{T}"/>
         public void OnCompleted() { }
 
         public void SubscribeTo(IObservable<KeyNotification> keyboard)

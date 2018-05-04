@@ -8,6 +8,9 @@ using md.stdl.String;
 
 namespace md.stdl.Coding
 {
+    /// <summary>
+    /// Extension methods for IEnumerables and the like
+    /// </summary>
     public static class CollectionExtensions
     {
         /// <summary>

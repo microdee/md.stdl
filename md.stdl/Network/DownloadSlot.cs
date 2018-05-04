@@ -15,7 +15,13 @@ namespace md.stdl.Network
     /// </summary>
     public class DownloadSlot : IObservable<DownloadSlot>
     {
+        /// <summary>
+        /// Url to file to download
+        /// </summary>
         public string Url { get; private set; }
+        /// <summary>
+        /// Destination file path
+        /// </summary>
         public string Destination { get; private set; }
 
         /// <summary>
@@ -26,6 +32,8 @@ namespace md.stdl.Network
         /// Total Bytes
         /// </summary>
         public long Total { get; private set; }
+
+#pragma warning disable CS1591
         public int Percent { get; private set; }
         public bool Ready { get; private set; }
         public bool Success { get; private set; }
@@ -33,6 +41,7 @@ namespace md.stdl.Network
         public string Message { get; private set; }
         public WebClient Client { get; private set; }
         public DownloadProgressChangedEventArgs LastProgress { get; private set; }
+#pragma warning restore CS1591
 
         private List<IObserver<DownloadSlot>> _observers = new List<IObserver<DownloadSlot>>();
 
@@ -76,6 +85,9 @@ namespace md.stdl.Network
             Destination = dst;
         }
         
+        /// <summary>
+        /// Invoke to actually start downloading
+        /// </summary>
         public void Start()
         {
             Client.DownloadFileAsync(new Uri(Url), Destination);

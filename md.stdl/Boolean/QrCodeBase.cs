@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 
+#pragma warning disable CS1591
 namespace md.stdl.QrCode
 {
     public class Error : Exception
@@ -536,7 +537,7 @@ namespace md.stdl.QrCode
                 //item
                 buffer.Put(m_data[i], 8);
             }
-            ///buffer = Data;
+            //buffer = Data;
         }
 
 
@@ -1207,3 +1208,5 @@ namespace md.stdl.QrCode
         }
     }
 }
+
+#pragma warning restore CS1591

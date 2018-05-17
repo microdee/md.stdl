@@ -44,9 +44,13 @@ namespace md.stdl.Interfaces
         /// </summary>
         public enum QueueMode
         {
-            /// <summary></summary>
+            /// <summary>
+            /// Step-by-step iteration
+            /// </summary>
             Enqueue,
-            /// <summary></summary>
+            /// <summary>
+            /// Keep only the last event and discard the rest
+            /// </summary>
             Discard
         }
 
@@ -80,9 +84,14 @@ namespace md.stdl.Interfaces
         }
 
         /// <summary>
-        /// Current position in the queue
+        /// Number of mainloop frames since creation
         /// </summary>
         public uint CurrentFrame { get; private set; }
+
+        /// <summary>
+        /// Number of items in the queue
+        /// </summary>
+        public int QueueSize => _queue.Count;
 
         /// <summary>
         /// Invoke this in your mainloop

@@ -82,12 +82,14 @@ namespace md.stdl.Time
         /// <summary>
         /// List of all the samples and when they were added (in TotalMilliSeconds)
         /// </summary>
-        public List<(double Key, T Frame)> Samples { get; } = new List<(double Key, T Frame)>();
+        public List<(double Key, T Frame)> Samples { get; private set; } = new List<(double Key, T Frame)>();
 
         /// <summary>
         /// Delete the oldest elements which are older than this amount of time
         /// </summary>
         public TimeSpan Capacity { get; set; }
+
+        public int Iterations { get; private set; }
 
         /// <summary>
         /// If your type is present in DelayUtils.TypeMeta already use this constructor. (most common value types and System.Numerics vectors/matrix4x4 are present by default)
@@ -171,7 +173,7 @@ namespace md.stdl.Time
                 var wd = newer.Key - older.Key;
                 var nd = newer.Key - absdeltime;
                 var p = (float)(nd / wd);
-                return Interpolator(older.Frame, newer.Frame, 1-p);
+                return Interpolator(older.Frame, newer.Frame, 1 - p);
             };
             unavailable = true;
             if (Samples.Count == 0) return Default;
@@ -181,16 +183,44 @@ namespace md.stdl.Time
             if (Samples.Count == 1) return Samples[0].Frame;
             if (Samples.Count == 2) return Interpolate(Samples[0], Samples[1]);
 
-            for (int i = Samples.Count - 1; i > 0; i--)
+            int i = (int)Math.Floor(Samples.Count / 2.0);
+            int lo = 0;
+            int hi = Samples.Count;
+            Iterations = 0;
+            while (true)
             {
+                Iterations++;
                 var cs = Samples[i];
                 var ps = Samples[i - 1];
                 if (absdeltime > ps.Key && absdeltime < cs.Key)
                 {
                     return Interpolate(ps, cs);
                 }
+                if (absdeltime > cs.Key)
+                {
+                    lo = i;
+                    i += (int)Math.Ceiling((hi - i) / 2.0);
+                }
+
+                if (absdeltime < ps.Key)
+                {
+                    hi = i;
+                    i -= (int)Math.Ceiling((i - lo) / 2.0);
+                }
             }
-            return Samples.Last().Frame;
+
+            //Iterations = 0;
+            //for (int i = Samples.Count - 1; i > 0; i--)
+            //{
+            //    Iterations++;
+            //    var cs = Samples[i];
+            //    var ps = Samples[i - 1];
+            //    if (absdeltime > ps.Key && absdeltime < cs.Key)
+            //    {
+            //        return Interpolate(ps, cs);
+            //    }
+            //}
+            //return Samples.Last().Frame;
         }
         /// <summary>
         /// Get a delayed value at a specified age.
@@ -277,3 +307,4 @@ namespace md.stdl.Time
         }
     }
 }
+

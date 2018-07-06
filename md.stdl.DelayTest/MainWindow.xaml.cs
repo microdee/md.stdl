@@ -38,7 +38,7 @@ namespace md.stdl.DelayTest
             {
                 _value = Math.Max(0.0f, _value - 0.01f);
 
-                _delayVal = _delay.Update(_value, TimeSpan.FromSeconds(1.5));
+                _delayVal = _delay.Update(_value, TimeSpan.FromSeconds(0.4565));
 
                 Dispatcher.BeginInvoke((Action)(() =>
                 {
@@ -46,7 +46,7 @@ namespace md.stdl.DelayTest
                     DelayedValueVis.Value = _delayVal * 100;
                     Timer.Text = _delay.Timer.Elapsed.TotalSeconds.ToString(NumberFormatInfo.InvariantInfo);
                     if(_delay.Samples == null) return;
-                    Count.Text = _delay.Samples.Count.ToString();
+                    Count.Text = _delay.Samples.Count + " / " + _delay.Iterations;
                     if(_delay.Samples.Count == 0) return;
                     FirstValueVis.Value = _delay.Samples[0].Frame * 100;
                     if (_delay.Samples.Count == 1) return;

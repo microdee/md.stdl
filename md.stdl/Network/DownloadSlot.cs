@@ -33,6 +33,11 @@ namespace md.stdl.Network
         /// </summary>
         public long Total { get; private set; }
 
+        /// <summary>
+        /// The task thread of downloading
+        /// </summary>
+        public Task DownloadTask { get; private set; }
+
 #pragma warning disable CS1591
         public int Percent { get; private set; }
         public bool Ready { get; private set; }
@@ -43,7 +48,7 @@ namespace md.stdl.Network
         public DownloadProgressChangedEventArgs LastProgress { get; private set; }
 #pragma warning restore CS1591
 
-        private List<IObserver<DownloadSlot>> _observers = new List<IObserver<DownloadSlot>>();
+        private readonly List<IObserver<DownloadSlot>> _observers = new List<IObserver<DownloadSlot>>();
 
         /// <summary>
         /// Constructor
@@ -70,9 +75,9 @@ namespace md.stdl.Network
                 {
                     Error = true;
                     Message = args.Error.Message;
-                    Message += "\n" + args.Error.InnerException.Message;
+                    Message += "\n" + args.Error.InnerException?.Message;
                     foreach (var observer in _observers)
-                        observer.OnError(args.Error.InnerException);
+                        observer.OnError(args.Error.InnerException ?? new Exception("Unknown error"));
                 }
                 else
                 {
@@ -90,11 +95,18 @@ namespace md.stdl.Network
         /// </summary>
         public void Start()
         {
-            Client.DownloadFileAsync(new Uri(Url), Destination);
+            DownloadTask = Client.DownloadFileTaskAsync(new Uri(Url), Destination);
         }
-        
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Subscribe an observer where OnNext is progress, OnError is error, and OnCompleted is completition
+        /// </summary>
+        /// <param name="observer"></param>
+        /// <returns></returns>
         public IDisposable Subscribe(IObserver<DownloadSlot> observer)
         {
+            _observers.Add(observer);
             return new Unsubscriber<DownloadSlot, DownloadSlot>(this, observer, (obsrl, obser) => _observers.Remove(obser));
         }
     }

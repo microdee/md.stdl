@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,51 @@ namespace md.stdl.Coding
                     keymapper(kvp.Key),
                     valuemapper(kvp.Value)
                 )).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        /// <summary>
+        /// Shortcut to add or set a value in dictionary
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="d"></param>
+        /// <param name="k"></param>
+        /// <param name="v"></param>
+        /// <returns>Value pass through</returns>
+        public static TVal Update<TKey, TVal>(this IDictionary d, TKey k, TVal v)
+        {
+            if (d.Contains(k)) d[k] = v;
+            else d.Add(k, v);
+            return v;
+        }
+
+        /// <summary>
+        /// Shortcut to add or set a value in dictionary
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="d"></param>
+        /// <param name="k"></param>
+        /// <param name="v"></param>
+        /// <returns>Value pass through</returns>
+        public static TVal Update<TKey, TVal>(this IDictionary<TKey, TVal> d, TKey k, TVal v)
+        {
+            if (d.ContainsKey(k)) d[k] = v;
+            else d.Add(k, v);
+            return v;
+        }
+
+        /// <summary>
+        /// Shortcut to add a value to a hashset
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hs"></param>
+        /// <param name="v"></param>
+        /// <returns>Value pass through</returns>
+        public static T Update<T>(this HashSet<T> hs, T v)
+        {
+            if (!hs.Contains(v)) hs.Add(v);
+            return v;
         }
 
         /// <summary>

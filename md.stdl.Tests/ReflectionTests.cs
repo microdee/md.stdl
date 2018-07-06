@@ -40,7 +40,6 @@ namespace md.stdl.Tests
             Assert.True(o.IsNumeric());
             o = (int) 7;
             Assert.True(o.IsNumeric());
-            Assert.True(typeof(decimal).IsNumeric());
             o = new List<int>() {0, 1, 2};
             Assert.False(o.IsNumeric());
             Assert.False(typeof(ReflectionTests).IsNumeric());
@@ -49,7 +48,7 @@ namespace md.stdl.Tests
         [Fact]
         public void IsTest()
         {
-            Assert.True(typeof(List<int>).Is(typeof(IList<int>)));
+            Assert.True(typeof(ReflectionTests).Is(typeof(ReflectionTestBase)));
         }
 
         [Fact]

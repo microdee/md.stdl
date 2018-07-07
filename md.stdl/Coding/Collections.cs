@@ -63,7 +63,7 @@ namespace md.stdl.Coding
         /// <param name="k"></param>
         /// <param name="v"></param>
         /// <returns>Value pass through</returns>
-        public static TVal Update<TKey, TVal>(this IDictionary<TKey, TVal> d, TKey k, TVal v)
+        public static TVal UpdateGeneric<TKey, TVal>(this IDictionary<TKey, TVal> d, TKey k, TVal v)
         {
             if (d.ContainsKey(k)) d[k] = v;
             else d.Add(k, v);

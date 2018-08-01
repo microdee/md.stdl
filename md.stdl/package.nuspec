@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>md-stdl</id>
-    <version>$version$</version>
+    <version>999.0.0</version>
     <title>md.stdl</title>
     <authors>David Mórász (microdee)</authors>
     <owners>David Mórász (microdee)</owners>

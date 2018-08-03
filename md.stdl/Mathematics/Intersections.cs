@@ -69,13 +69,69 @@ namespace md.stdl.Mathematics
         }
 
         /// <summary>
+        /// AABB via minmax Intersects AABB via minmax in 2D
+        /// </summary>
+        /// <param name="b1min"></param>
+        /// <param name="b1max"></param>
+        /// <param name="b2min"></param>
+        /// <param name="b2max"></param>
+        /// <returns></returns>
+        public static bool AabbAabb2D(Vector2 b1min, Vector2 b1max, Vector2 b2min, Vector2 b2max)
+        {
+            var b2minWi = b2min.X <= b1max.X && b2min.X >= b1min.X;
+            var b1maxWi = b1max.X <= b2max.X && b1max.X >= b2min.X;
+            var wi = b2minWi || b1maxWi;
+            var b2minHi = b2min.Y <= b1max.Y && b2min.Y >= b1min.Y;
+            var b1maxHi = b1max.Y <= b2max.Y && b1max.Y >= b2min.Y;
+            var hi = b2minHi || b1maxHi;
+            return wi && hi;
+        }
+
+        /// <summary>
+        /// AABB via minmax Intersects AABB via minmax in 3D
+        /// </summary>
+        /// <param name="b1min"></param>
+        /// <param name="b1max"></param>
+        /// <param name="b2min"></param>
+        /// <param name="b2max"></param>
+        /// <returns></returns>
+        public static bool AabbAabb3D(Vector3 b1min, Vector3 b1max, Vector3 b2min, Vector3 b2max)
+        {
+            var b2minWi = b2min.X <= b1max.X && b2min.X >= b1min.X;
+            var b1maxWi = b1max.X <= b2max.X && b1max.X >= b2min.X;
+            var wi = b2minWi || b1maxWi;
+            var b2minHi = b2min.Y <= b1max.Y && b2min.Y >= b1min.Y;
+            var b1maxHi = b1max.Y <= b2max.Y && b1max.Y >= b2min.Y;
+            var hi = b2minHi || b1maxHi;
+            var b2minDi = b2min.Z <= b1max.Z && b2min.Z >= b1min.Z;
+            var b1maxDi = b1max.Z <= b2max.Z && b1max.Z >= b2min.Z;
+            var di = b2minDi || b1maxDi;
+            return wi && hi && di;
+        }
+
+        /// <summary>
         /// Is a point located in a box
         /// </summary>
         /// <param name="boxmin">Box bounds minimum</param>
         /// <param name="boxmax">Box bounds maximum</param>
         /// <param name="point">Point in question</param>
         /// <returns></returns>
+        [Obsolete("Replaced with AabbPoint3D")]
         public static bool BoxPoint(Vector3 boxmin, Vector3 boxmax, Vector3 point)
+        {
+            return point.X >= boxmin.X && point.X <= boxmax.X &&
+                   point.Y >= boxmin.Y && point.Y <= boxmax.Y &&
+                   point.Z >= boxmin.Z && point.Z <= boxmax.Z;
+        }
+
+        /// <summary>
+        /// Is a point located in a box
+        /// </summary>
+        /// <param name="boxmin">Box bounds minimum</param>
+        /// <param name="boxmax">Box bounds maximum</param>
+        /// <param name="point">Point in question</param>
+        /// <returns></returns>
+        public static bool AabbPoint3D(Vector3 boxmin, Vector3 boxmax, Vector3 point)
         {
             return point.X >= boxmin.X && point.X <= boxmax.X &&
                    point.Y >= boxmin.Y && point.Y <= boxmax.Y &&

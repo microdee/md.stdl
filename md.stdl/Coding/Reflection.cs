@@ -8,6 +8,50 @@ using System.Threading.Tasks;
 namespace md.stdl.Coding
 {
     /// <summary>
+    /// A fluent workaround for switching on Types
+    /// </summary>
+    public class TypeSwitch
+    {
+        private readonly Dictionary<Type, Action<Type>> _matches = new Dictionary<Type, Action<Type>>();
+        private Action _default;
+
+        /// <summary>
+        /// Declare cases
+        /// </summary>
+        /// <typeparam name="T">Use the type argument as condition</typeparam>
+        /// <param name="action"></param>
+        /// <returns>Returns itself for fluency</returns>
+        public TypeSwitch Case<T>(Action<Type> action)
+        {
+            _matches.Add(typeof(T), action);
+            return this;
+        }
+
+        /// <summary>
+        /// Declare default case
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public TypeSwitch Default(Action action)
+        {
+            _default = action;
+            return this;
+        }
+
+        /// <summary>
+        /// Call this to switch
+        /// </summary>
+        /// <param name="x">The type object to switch on</param>
+        public void Switch(Type x)
+        {
+            if (x == null) _default?.Invoke();
+            if (_matches.ContainsKey(x))
+                _matches[x](x);
+            else _default?.Invoke();
+        }
+    }
+
+    /// <summary>
     /// Extension methods relating to reflection and types
     /// </summary>
     public static class ReflectionExtensions
@@ -30,7 +74,7 @@ namespace md.stdl.Coding
         /// <returns></returns>
         public static bool Is(this Type a, Type b)
         {
-            return a.IsAssignableFrom(b) || a.IsSubclassOf(b);
+            return a.IsAssignableFrom(b) || a.IsSubclassOf(b) ;
         }
 
         /// <summary>

@@ -161,12 +161,6 @@
     <Compile Include="Network\DownloadSlot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Coding\Reflection.cs" />
-    <Compile Include="RectPack\BestBinFinder.cs" />
-    <Compile Include="RectPack\EmptySpaceAllocators.cs" />
-    <Compile Include="RectPack\EmptySpaces.cs" />
-    <Compile Include="RectPack\Finders.cs" />
-    <Compile Include="RectPack\InsertAndSplit.cs" />
-    <Compile Include="RectPack\RectStructs.cs" />
     <Compile Include="StreamUtils\StreamExtensions.cs" />
     <Compile Include="String\StringDistance.cs" />
     <Compile Include="String\StringExtensions.cs" />

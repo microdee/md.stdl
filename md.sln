@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ManualTests", "ManualTests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "md.stdl.MouseKeyboardTest", "ManualTests\md.stdl.MouseKeyboardTest\md.stdl.MouseKeyboardTest.csproj", "{BA0FBA91-8F08-49A3-BD86-3B12DA42A602}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "md.stdl.Native", "md.stdl.Native\md.stdl.Native.vcxproj", "{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "md.stdl.DelayTest", "md.stdl.DelayTest\md.stdl.DelayTest.csproj", "{31CB0E12-C26D-4648-ACF7-A156687D86CA}"
 EndProject
 Global
@@ -61,17 +59,6 @@ Global
 		{BA0FBA91-8F08-49A3-BD86-3B12DA42A602}.Release|x64.Build.0 = Release|Any CPU
 		{BA0FBA91-8F08-49A3-BD86-3B12DA42A602}.Release|x86.ActiveCfg = Release|Any CPU
 		{BA0FBA91-8F08-49A3-BD86-3B12DA42A602}.Release|x86.Build.0 = Release|Any CPU
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Debug|x64.ActiveCfg = Debug|x64
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Debug|x64.Build.0 = Debug|x64
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Debug|x86.ActiveCfg = Debug|Win32
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Debug|x86.Build.0 = Debug|Win32
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Release|Any CPU.ActiveCfg = Release|Win32
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Release|Any CPU.Build.0 = Release|Win32
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Release|x64.ActiveCfg = Release|x64
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Release|x64.Build.0 = Release|x64
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Release|x86.ActiveCfg = Release|Win32
-		{F1F8255D-E93E-4CD1-95A2-115DF56AFED4}.Release|x86.Build.0 = Release|Win32
 		{31CB0E12-C26D-4648-ACF7-A156687D86CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{31CB0E12-C26D-4648-ACF7-A156687D86CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31CB0E12-C26D-4648-ACF7-A156687D86CA}.Debug|x64.ActiveCfg = Debug|Any CPU

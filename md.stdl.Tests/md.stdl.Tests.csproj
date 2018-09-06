@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BooleanTests.cs" />
+    <Compile Include="FileSystemTests.cs" />
     <Compile Include="MainloopSchedulerTest.cs" />
     <Compile Include="OpaqTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

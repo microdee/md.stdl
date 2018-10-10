@@ -127,6 +127,7 @@
     </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -179,6 +180,7 @@
     <Compile Include="Time\StopwatchInteractive.cs" />
     <Compile Include="Windows\FileSystem.cs" />
     <Compile Include="Windows\MessageOnlyWindow.cs" />
+    <Compile Include="Xaml\NumericsTypeConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -16,32 +16,61 @@ namespace md.stdl.StreamUtils
             input.Read(tmp, 0, 1);
             return BitConverter.ToBoolean(tmp, 0);
         }
+        public static ushort ReadUshort(this Stream input)
+        {
+            var tmp = new byte[2];
+            input.Read(tmp, 0, 2);
+            return BitConverter.ToUInt16(tmp, 0);
+        }
         public static uint ReadUint(this Stream input)
         {
             var tmp = new byte[4];
             input.Read(tmp, 0, 4);
             return BitConverter.ToUInt32(tmp, 0);
         }
+        public static ulong ReadUlong(this Stream input)
+        {
+            var tmp = new byte[8];
+            input.Read(tmp, 0, 8);
+            return BitConverter.ToUInt64(tmp, 0);
+        }
+        public static short ReadShort(this Stream input)
+        {
+            var tmp = new byte[2];
+            input.Read(tmp, 0, 2);
+            return BitConverter.ToInt16(tmp, 0);
+        }
         public static int ReadInt(this Stream input)
         {
             var tmp = new byte[4];
-            input.Read(tmp, 0, 1);
+            input.Read(tmp, 0, 4);
             return BitConverter.ToInt32(tmp, 0);
+        }
+        public static long ReadLong(this Stream input)
+        {
+            var tmp = new byte[8];
+            input.Read(tmp, 0, 8);
+            return BitConverter.ToInt64(tmp, 0);
         }
         public static float ReadFloat(this Stream input)
         {
             var tmp = new byte[4];
-            input.Read(tmp, 0, 1);
+            input.Read(tmp, 0, 4);
             return BitConverter.ToSingle(tmp, 0);
         }
         public static double ReadDouble(this Stream input)
         {
             var tmp = new byte[8];
-            input.Read(tmp, 0, 1);
+            input.Read(tmp, 0, 8);
             return BitConverter.ToDouble(tmp, 0);
         }
 
         public static void WriteBool(this Stream input, bool data)
+        {
+            var tmp = BitConverter.GetBytes(data);
+            input.Write(tmp, 0, tmp.Length);
+        }
+        public static void WriteUshort(this Stream input, ushort data)
         {
             var tmp = BitConverter.GetBytes(data);
             input.Write(tmp, 0, tmp.Length);
@@ -51,7 +80,22 @@ namespace md.stdl.StreamUtils
             var tmp = BitConverter.GetBytes(data);
             input.Write(tmp, 0, tmp.Length);
         }
+        public static void WriteUlong(this Stream input, ulong data)
+        {
+            var tmp = BitConverter.GetBytes(data);
+            input.Write(tmp, 0, tmp.Length);
+        }
+        public static void WriteShort(this Stream input, short data)
+        {
+            var tmp = BitConverter.GetBytes(data);
+            input.Write(tmp, 0, tmp.Length);
+        }
         public static void WriteInt(this Stream input, int data)
+        {
+            var tmp = BitConverter.GetBytes(data);
+            input.Write(tmp, 0, tmp.Length);
+        }
+        public static void WriteLong(this Stream input, long data)
         {
             var tmp = BitConverter.GetBytes(data);
             input.Write(tmp, 0, tmp.Length);

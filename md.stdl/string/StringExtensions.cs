@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace md.stdl.String
@@ -140,6 +141,92 @@ namespace md.stdl.String
             var hashstring = new SHA256Managed();
             var hash = hashstring.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
+        }
+
+        /// <summary>
+        /// Shortcut to Contains(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool ContainsCaseless(this string text, string subtext)
+        {
+            return text.Contains(subtext, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shortcut to Equals(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool EqualsCaseless(this string text, string subtext)
+        {
+            return text.Equals(subtext, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shortcut to StartsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool StartsWithCaseless(this string text, string subtext)
+        {
+            return text.StartsWith(subtext, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shortcut to EndsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool EndsWithCaseless(this string text, string subtext)
+        {
+            return text.EndsWith(subtext, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shortcut to regex matching groups
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="pattern"></param>
+        /// <param name="options"></param>
+        /// <returns>Group collection which you can use to retrieve named captures</returns>
+        /// <remarks>
+        /// <code>
+        /// string capture = myinput.MatchGroup(".*?")["mycapture"]
+        /// </code>
+        /// </remarks>
+        public static GroupCollection MatchGroup(
+            this string text,
+            string pattern,
+            RegexOptions options = RegexOptions.CultureInvariant | RegexOptions.Multiline)
+        {
+            var match = Regex.Match(text, pattern, options);
+            return match.Groups;
+        }
+
+        /// <summary>
+        /// Fluid pattern for retrieving named captures from a regex GroupCollection
+        /// </summary>
+        /// <param name="groups"></param>
+        /// <param name="capturename"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// <code>
+        /// myinput.MatchGroup(".*?")
+        ///     .Fetch("firstcap", out var first)
+        ///     .Fetch("secondcap", out var second)
+        ///     ...
+        /// </code>
+        /// </remarks>
+        public static GroupCollection Fetch(this GroupCollection groups, string capturename, out string result)
+        {
+            result = groups[capturename].Value;
+            return groups;
         }
     }
 }

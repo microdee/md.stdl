@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -261,6 +262,83 @@ namespace md.stdl.Coding
                 else opaqAddResults(children, childrenFromKey(obj, levels[0]), childEqualityComparer);
             }
             return nextpath;
+        }
+
+        /// <summary>
+        /// Shortcut to thread safe enumeration of Concurrent Dictionaries
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="action"></param>
+        public static void ForeachConcurrent<TKey, TVal>(
+            this ConcurrentDictionary<TKey, TVal> collection,
+            Action<TKey, TVal> action)
+        {
+            using (var enumerator = collection.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    action(enumerator.Current.Key, enumerator.Current.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shortcut to thread safe enumeration of Concurrent Bags
+        /// </summary>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="action"></param>
+        public static void ForeachConcurrent<TVal>(
+            this ConcurrentBag<TVal> collection,
+            Action<TVal> action)
+        {
+            using (var enumerator = collection.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    action(enumerator.Current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shortcut to thread safe enumeration of Concurrent Queues
+        /// </summary>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="action"></param>
+        public static void ForeachConcurrent<TVal>(
+            this ConcurrentQueue<TVal> collection,
+            Action<TVal> action)
+        {
+            using (var enumerator = collection.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    action(enumerator.Current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shortcut to thread safe enumeration of Concurrent Stacks
+        /// </summary>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="action"></param>
+        public static void ForeachConcurrent<TVal>(
+            this ConcurrentStack<TVal> collection,
+            Action<TVal> action)
+        {
+            using (var enumerator = collection.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    action(enumerator.Current);
+                }
+            }
         }
     }
 }

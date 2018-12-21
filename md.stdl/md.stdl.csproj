@@ -25,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\Debug\md.stdl.xml</DocumentationFile>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\md.stdl.xml</DocumentationFile>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -74,6 +76,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="SevenZip, Version=9.20.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\LZMA-SDK.9.20\lib\net20\SevenZip.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
@@ -122,6 +127,7 @@
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -147,11 +153,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="YamlDotNet, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.5.3.0\lib\net45\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Boolean\BitUtils.cs" />
     <Compile Include="Boolean\QrCodeBase.cs" />
     <Compile Include="Coding\Collections.cs" />
+    <Compile Include="Coding\ObservableBase.cs" />
     <Compile Include="Coding\Observables.cs" />
     <Compile Include="Interaction\AccumulatingInputObservers.cs" />
     <Compile Include="Interaction\DesktopDeviceInputBase.cs" />
@@ -162,20 +172,27 @@
     <Compile Include="Interaction\PrimitiveTouch.cs" />
     <Compile Include="Interfaces\CloneableUpdateable.cs" />
     <Compile Include="Interfaces\IMainlooping.cs" />
+    <Compile Include="json\JsonExtensions.cs" />
+    <Compile Include="json\YamlToJson.cs" />
     <Compile Include="Mathematics\Coordinates.cs" />
     <Compile Include="Mathematics\Filters.cs" />
     <Compile Include="Mathematics\Intersections.cs" />
     <Compile Include="Mathematics\NumericsExtensions.cs" />
+    <Compile Include="Mathematics\Quaternions.cs" />
     <Compile Include="Mathematics\Sphere.cs" />
     <Compile Include="Network\DownloadSlot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Coding\Reflection.cs" />
+    <Compile Include="StreamUtils\Base58.cs" />
+    <Compile Include="StreamUtils\Base58ArrayHelpers.cs" />
     <Compile Include="StreamUtils\StreamExtensions.cs" />
     <Compile Include="String\StringDistance.cs" />
     <Compile Include="String\StringExtensions.cs" />
     <Compile Include="Time\Delay.cs" />
     <Compile Include="Time\StopwatchInteractive.cs" />
+    <Compile Include="Windows\AppCrashErrorMessageSuppression.cs" />
     <Compile Include="Windows\FileSystem.cs" />
+    <Compile Include="Windows\Impersonation.cs" />
     <Compile Include="Windows\MessageOnlyWindow.cs" />
     <Compile Include="Xaml\NumericsTypeConverter.cs" />
   </ItemGroup>

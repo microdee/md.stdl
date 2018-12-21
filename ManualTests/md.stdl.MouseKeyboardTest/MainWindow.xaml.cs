@@ -80,7 +80,7 @@ namespace md.stdl.MouseKeyboardTest
                                 {
                                     return s += (s == keyboardnames[i] + Environment.NewLine ? "" : ", ") +
                                         key.Key.ToString()
-                                            .Repeat(Math.Max(key.Value.Count, 1))
+                                            //.Repeat(Math.Max(key.Value.Count, 1))
                                             .Aggregate("", (s1, c) => s1 + c);
                                 });
                             acckeyboards[i].ResetAccumulation();

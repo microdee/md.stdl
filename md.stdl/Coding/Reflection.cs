@@ -227,5 +227,131 @@ namespace md.stdl.Coding
         {
             return t.GetInterface("IEnumerable") != null && t != typeof(string);
         }
+
+        /// <summary>
+        /// Shortcut to get the propertyinfo of a property at an object
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static PropertyInfo Prop(this object src, string name)
+        {
+            return src.GetType().GetProperty(name);
+        }
+
+        /// <summary>
+        /// Shortcut to get the fieldinfo of a field at an object
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static FieldInfo Field(this object src, string name)
+        {
+            return src.GetType().GetField(name);
+        }
+
+        /// <summary>
+        /// Shortcut to get the value of a property of an object
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object GetProp(this object src, string name)
+        {
+            var member = src.Prop(name);
+            return member.GetValue(src);
+        }
+
+        /// <summary>
+        /// Shortcut to get the value of a field of an object
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object GetField(this object src, string name)
+        {
+            var member = src.Field(name);
+            return member.GetValue(src);
+        }
+
+        /// <summary>
+        /// Shortcut to get the value of a property of an object
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static T GetProp<T>(this object src, string name)
+        {
+            return (T)src.GetProp(name);
+        }
+
+        /// <summary>
+        /// Shortcut to get the value of a field of an object
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static T GetField<T>(this object src, string name)
+        {
+            return (T)src.GetField(name);
+        }
+
+        /// <summary>
+        /// Shortcut to get the value of a field or a property of an object. Use GetProp or GetField if you know that the member is a field or a property
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object Get(this object src, string name)
+        {
+            var prop = src.Prop(name);
+            if (prop != null)
+            {
+                return prop.GetValue(src);
+            }
+            var field = src.Field(name);
+            if (field != null)
+            {
+                return field.GetValue(src);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Shortcut to get the value of a field or a property of an object. Use GetProp or GetField if you know that the member is a field or a property
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static T Get<T>(this object src, string name)
+        {
+            return (T)src.Get(name);
+        }
+
+        /// <summary>
+        /// Get all types which have a certain attribute attached in an assembly
+        /// </summary>
+        /// <typeparam name="TAttr"></typeparam>
+        /// <param name="ass"></param>
+        /// <param name="inherit"></param>
+        /// <returns></returns>
+        public static IEnumerable<(Type, TAttr)> GetTypesWithAttribute<TAttr>(this Assembly ass, bool inherit = false)
+            where TAttr : Attribute
+        {
+            var alltypes = ass.GetTypes();
+            foreach (var type in alltypes)
+            {
+                var attrs = type.GetCustomAttributes(inherit);
+                if(attrs.Length == 0) continue;
+                TAttr res = null;
+                foreach (var attr in attrs)
+                {
+                    if (!(attr is TAttr tattr)) continue;
+                    res = tattr;
+                    break;
+                }
+                if (res != null) yield return (type, res);
+            }
+        }
     }
 }

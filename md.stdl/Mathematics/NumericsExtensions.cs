@@ -72,6 +72,48 @@ namespace md.stdl.Mathematics
         public static Vector3 zwy(this Vector4 a) => new Vector3(a.Z, a.W, a.Y);
         public static Vector3 zyw(this Vector4 a) => new Vector3(a.Z, a.Y, a.W);
 
+        public static Vector2 xy(this Quaternion a) => new Vector2(a.X, a.Y);
+        public static Vector2 yx(this Quaternion a) => new Vector2(a.Y, a.X);
+        public static Vector2 xz(this Quaternion a) => new Vector2(a.X, a.Z);
+        public static Vector2 zx(this Quaternion a) => new Vector2(a.Z, a.X);
+        public static Vector2 yz(this Quaternion a) => new Vector2(a.Y, a.Z);
+        public static Vector2 zy(this Quaternion a) => new Vector2(a.Z, a.Y);
+
+        public static Vector2 xw(this Quaternion a) => new Vector2(a.X, a.W);
+        public static Vector2 wx(this Quaternion a) => new Vector2(a.W, a.X);
+        public static Vector2 wz(this Quaternion a) => new Vector2(a.W, a.Z);
+        public static Vector2 zw(this Quaternion a) => new Vector2(a.Z, a.W);
+        public static Vector2 yw(this Quaternion a) => new Vector2(a.Y, a.W);
+        public static Vector2 wy(this Quaternion a) => new Vector2(a.W, a.Y);
+
+        public static Vector3 xyz(this Quaternion a) => new Vector3(a.X, a.Y, a.Z);
+        public static Vector3 xzy(this Quaternion a) => new Vector3(a.X, a.Z, a.Y);
+        public static Vector3 yxz(this Quaternion a) => new Vector3(a.Y, a.X, a.Z);
+        public static Vector3 yzx(this Quaternion a) => new Vector3(a.Y, a.X, a.Z);
+        public static Vector3 zxy(this Quaternion a) => new Vector3(a.Z, a.X, a.Y);
+        public static Vector3 zyx(this Quaternion a) => new Vector3(a.Z, a.Y, a.X);
+
+        public static Vector3 xyw(this Quaternion a) => new Vector3(a.X, a.Y, a.W);
+        public static Vector3 xwy(this Quaternion a) => new Vector3(a.X, a.W, a.Y);
+        public static Vector3 yxw(this Quaternion a) => new Vector3(a.Y, a.X, a.W);
+        public static Vector3 ywx(this Quaternion a) => new Vector3(a.Y, a.X, a.W);
+        public static Vector3 wxy(this Quaternion a) => new Vector3(a.W, a.X, a.Y);
+        public static Vector3 wyx(this Quaternion a) => new Vector3(a.W, a.Y, a.X);
+
+        public static Vector3 xwz(this Quaternion a) => new Vector3(a.X, a.W, a.Z);
+        public static Vector3 xzw(this Quaternion a) => new Vector3(a.X, a.Z, a.W);
+        public static Vector3 wxz(this Quaternion a) => new Vector3(a.W, a.X, a.Z);
+        public static Vector3 wzx(this Quaternion a) => new Vector3(a.W, a.X, a.Z);
+        public static Vector3 zxw(this Quaternion a) => new Vector3(a.Z, a.X, a.W);
+        public static Vector3 zwx(this Quaternion a) => new Vector3(a.Z, a.W, a.X);
+
+        public static Vector3 wyz(this Quaternion a) => new Vector3(a.W, a.Y, a.Z);
+        public static Vector3 wzy(this Quaternion a) => new Vector3(a.W, a.Z, a.Y);
+        public static Vector3 ywz(this Quaternion a) => new Vector3(a.Y, a.W, a.Z);
+        public static Vector3 yzw(this Quaternion a) => new Vector3(a.Y, a.W, a.Z);
+        public static Vector3 zwy(this Quaternion a) => new Vector3(a.Z, a.W, a.Y);
+        public static Vector3 zyw(this Quaternion a) => new Vector3(a.Z, a.Y, a.W);
+
         public static Vector2D AsVVector(this Vector2 v) => new Vector2D(v.X, v.Y);
         public static Vector3D AsVVector(this Vector3 v) => new Vector3D(v.X, v.Y, v.Z);
         public static Vector4D AsVVector(this Vector4 v) => new Vector4D(v.X, v.Y, v.Z, v.W);

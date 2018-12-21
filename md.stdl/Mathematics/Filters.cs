@@ -140,14 +140,14 @@ namespace md.stdl.Mathematics
         /// </summary>
         /// <param name="prevpos">Previous position</param>
         /// <param name="target">Target position</param>
-        /// <param name="velocity">Maximum velocity</param>
+        /// <param name="velocity">Maximum angular velocity (1 = INF)</param>
         /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
         public static Quaternion Velocity(Quaternion prevpos, Quaternion target, float velocity, float epsilon = 0.00001f)
         {
-            var d = target - prevpos;
-            if (d.Length() < epsilon) return target;
-            return prevpos + Quaternion.Normalize(d) * Min(velocity, d.Length());
+            var diffang = prevpos.AngleDiff(target) / (float)(PI * 2);
+            if (diffang < epsilon) return target;
+            return Quaternion.Slerp(prevpos, target, Min(velocity, diffang));
         }
         #endregion
 
@@ -244,23 +244,23 @@ namespace md.stdl.Mathematics
         /// Inertial, force driven filter for Quaternion
         /// </summary>
         /// <param name="prevpos">Previous position</param>
-        /// <param name="prevvel">Previous velocity</param>
+        /// <param name="prevvel">Previous angular velocity</param>
         /// <param name="target">Target position</param>
-        /// <param name="force">Maximum force</param>
+        /// <param name="force">Maximum angular force</param>
         /// <param name="newpos">New position</param>
-        /// <param name="newvel">New velocity</param>
-        public static void Inertial(Quaternion prevpos, Quaternion prevvel, Quaternion target, float force, out Quaternion newpos, out Quaternion newvel)
+        /// <param name="newvel">New angular velocity</param>
+        public static void Inertial(Quaternion prevpos, float prevvel, Quaternion target, float force, out Quaternion newpos, out float newvel)
         {
-            var d = target - prevpos;
-            if (d.Length() < 0.00001)
+            var d = prevpos.AngleDiff(target) / (float)(PI * 2);
+            if (d < 0.00001)
             {
                 newpos = target;
-                newvel = Quaternion.Identity;
+                newvel = 0;
                 return;
             }
-            var f = Quaternion.Normalize(d) * Min(force, d.Length());
+            var f = Min(force, d);
             newvel = prevvel + f;
-            newpos = prevpos + newvel;
+            newpos = Quaternion.Slerp(prevpos, target, newvel);
         }
         #endregion
 
@@ -341,16 +341,15 @@ namespace md.stdl.Mathematics
         /// </summary>
         /// <param name="previous">Previous position</param>
         /// <param name="target">Target position</param>
-        /// <param name="time">Amount of time filtering should take to reach target</param>
+        /// <param name="time">Angle per second in cycles (1.0 = 360°)</param>
         /// <param name="deltaTime">Amount of time between updates</param>
         /// <param name="minSpeed">Minimum speed while approaching target (in unit/time)</param>
         /// <param name="epsilon">Distance to be considered close enough to target to return target</param>
         /// <returns>New position</returns>
-        public static Quaternion Damper(Quaternion previous, Quaternion target, float time, float deltaTime, float minSpeed = 0.001f, float epsilon = 0.00001f)
+        public static Quaternion Damper(Quaternion previous, Quaternion target, float time, float deltaTime, float epsilon = 0.00001f)
         {
-            var frametime = (6 / time) * deltaTime;
-            var dist = (target - previous).Length();
-            return Velocity(previous, target, frametime * Max(minSpeed, dist), epsilon);
+            var angvel = Min((6*time) * deltaTime, 1);
+            return Quaternion.Slerp(previous, target, angvel);
         }
         #endregion
     }

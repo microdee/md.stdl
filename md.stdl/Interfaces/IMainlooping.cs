@@ -64,12 +64,14 @@ namespace md.stdl.Interfaces
         }
 
         /// <inheritdoc cref="IScheduler"/>
+        /// <summary>THIS IS NOT SUPPORTED</summary>
         public IDisposable Schedule<TState>(TState state, DateTimeOffset dueTime, Func<IScheduler, TState, IDisposable> action)
         {
             throw new NotSupportedException();
         }
 
         /// <inheritdoc cref="IScheduler"/>
+        /// <summary>THIS IS NOT SUPPORTED</summary>
         public IDisposable Schedule<TState>(TState state, TimeSpan dueTime, Func<IScheduler, TState, IDisposable> action)
         {
             throw new NotSupportedException();

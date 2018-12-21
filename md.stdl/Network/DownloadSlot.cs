@@ -13,16 +13,16 @@ namespace md.stdl.Network
     /// <summary>
     /// High level observable wrapper around WebClient downloading
     /// </summary>
-    public class DownloadSlot : IObservable<DownloadSlot>
+    public class DownloadSlot : ObservableBase<DownloadSlot>, IDisposable
     {
         /// <summary>
         /// Url to file to download
         /// </summary>
-        public string Url { get; private set; }
+        public string Url { get; set; }
         /// <summary>
         /// Destination file path
         /// </summary>
-        public string Destination { get; private set; }
+        public string Destination { get; set; }
 
         /// <summary>
         /// Received bytes
@@ -42,13 +42,11 @@ namespace md.stdl.Network
         public int Percent { get; private set; }
         public bool Ready { get; private set; }
         public bool Success { get; private set; }
-        public bool Error { get; private set; }
+        public bool DownloadError { get; private set; }
         public string Message { get; private set; }
         public WebClient Client { get; private set; }
         public DownloadProgressChangedEventArgs LastProgress { get; private set; }
 #pragma warning restore CS1591
-
-        private readonly List<IObserver<DownloadSlot>> _observers = new List<IObserver<DownloadSlot>>();
 
         /// <summary>
         /// Constructor
@@ -65,25 +63,22 @@ namespace md.stdl.Network
                 Percent = args.ProgressPercentage;
                 LastProgress = args;
 
-                foreach (var observer in _observers)
-                    observer.OnNext(this);
+                Next(this);
             };
             Client.DownloadFileCompleted += (sender, args) =>
             {
                 Ready = true;
                 if (args.Error != null)
                 {
-                    Error = true;
+                    DownloadError = true;
                     Message = args.Error.Message;
                     Message += "\n" + args.Error.InnerException?.Message;
-                    foreach (var observer in _observers)
-                        observer.OnError(args.Error.InnerException ?? new Exception("Unknown error"));
+                    Error(args.Error.InnerException ?? new Exception("Unknown error"));
                 }
                 else
                 {
                     Success = true;
-                    foreach (var observer in _observers)
-                        observer.OnCompleted();
+                    Completed();
                 }
             };
             Url = src;
@@ -97,17 +92,21 @@ namespace md.stdl.Network
         {
             DownloadTask = Client.DownloadFileTaskAsync(new Uri(Url), Destination);
         }
+        
+        /// <summary>
+        /// Gets the mime-type of a file from the Url
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> GetMimeType()
+        {
+            var bytes = await Client.DownloadDataTaskAsync(Url);
+            return Client.ResponseHeaders["content-type"];
+        }
 
         /// <inheritdoc />
-        /// <summary>
-        /// Subscribe an observer where OnNext is progress, OnError is error, and OnCompleted is completition
-        /// </summary>
-        /// <param name="observer"></param>
-        /// <returns></returns>
-        public IDisposable Subscribe(IObserver<DownloadSlot> observer)
+        public void Dispose()
         {
-            _observers.Add(observer);
-            return new Unsubscriber<DownloadSlot, DownloadSlot>(this, observer, (obsrl, obser) => _observers.Remove(obser));
+            Client?.Dispose();
         }
     }
 }

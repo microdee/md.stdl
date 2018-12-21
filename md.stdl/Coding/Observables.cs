@@ -8,38 +8,6 @@ using md.stdl.Interfaces;
 
 namespace md.stdl.Coding
 {
-    /// <inheritdoc />
-    /// <summary>
-    /// Generic unsubscriber for Observables
-    /// </summary>
-    /// <typeparam name="TObservable">Type of the observable</typeparam>
-    /// <typeparam name="TArg">Argument type of the Observable</typeparam>
-    public class Unsubscriber<TObservable, TArg> : IDisposable where TObservable : IObservable<TArg>
-    {
-        private readonly Action<TObservable, IObserver<TArg>> _removal;
-        private readonly TObservable _observable;
-        private readonly IObserver<TArg> _observer;
-
-        /// <summary>
-        /// Construct the Unsubscriber
-        /// </summary>
-        /// <param name="observer">The unsubscribing observer</param>
-        /// <param name="observable">The observable which has the observer</param>
-        /// <param name="removal">The method of subscription removal from the observable</param>
-        public Unsubscriber(TObservable observable,
-            IObserver<TArg> observer,
-            Action<TObservable, IObserver<TArg>> removal)
-        {
-            _removal = removal;
-            _observable = observable;
-            _observer = observer;
-        }
-        public void Dispose()
-        {
-            _removal?.Invoke(_observable, _observer);
-        }
-    }
-
     /// <inheritdoc cref="IMainlooping"/>
     /// <summary>
     /// Flattens an event into a single frame boolean in a mainloop

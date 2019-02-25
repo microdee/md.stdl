@@ -46,7 +46,8 @@ namespace md.stdl.Windows
             try
             {
                 var root = entireMachine ? Registry.LocalMachine : Registry.CurrentUser;
-                var key = root.OpenSubKey(@"Software\Microsoft\Windows\Windows Error Reporting");
+                var key = root.CreateSubKey(@"Software\Microsoft\Windows\Windows Error Reporting");
+                key?.SetValue("DontShowUI", 1, RegistryValueKind.DWord);
                 key?.SetValue("Disabled", 1, RegistryValueKind.DWord);
             }
             catch (Exception e) { }

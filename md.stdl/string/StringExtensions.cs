@@ -155,6 +155,28 @@ namespace md.stdl.String
         }
 
         /// <summary>
+        /// Shortcut to Contains(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool ContainsCaselessAny(this string text, params string[] subtext)
+        {
+            return subtext.Any(text.ContainsCaseless);
+        }
+
+        /// <summary>
+        /// Shortcut to Contains(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool ContainsCaselessAll(this string text, params string[] subtext)
+        {
+            return subtext.All(text.ContainsCaseless);
+        }
+
+        /// <summary>
         /// Shortcut to Equals(subtext, StringComparison.InvariantCultureIgnoreCase)
         /// </summary>
         /// <param name="text"></param>
@@ -163,6 +185,28 @@ namespace md.stdl.String
         public static bool EqualsCaseless(this string text, string subtext)
         {
             return text.Equals(subtext, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shortcut to Equals(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool EqualsCaselessAny(this string text, params string[] subtext)
+        {
+            return subtext.Any(text.EqualsCaseless);
+        }
+
+        /// <summary>
+        /// Shortcut to Equals(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool EqualsCaselessAll(this string text, params string[] subtext)
+        {
+            return subtext.All(text.EqualsCaseless);
         }
 
         /// <summary>
@@ -177,6 +221,28 @@ namespace md.stdl.String
         }
 
         /// <summary>
+        /// Shortcut to StartsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool StartsWithCaselessAny(this string text, params string[] subtext)
+        {
+            return subtext.Any(text.StartsWithCaseless);
+        }
+
+        /// <summary>
+        /// Shortcut to StartsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool StartsWithCaselessAll(this string text, params string[] subtext)
+        {
+            return subtext.All(text.StartsWithCaseless);
+        }
+
+        /// <summary>
         /// Shortcut to EndsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
         /// </summary>
         /// <param name="text"></param>
@@ -185,6 +251,28 @@ namespace md.stdl.String
         public static bool EndsWithCaseless(this string text, string subtext)
         {
             return text.EndsWith(subtext, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shortcut to EndsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool EndsWithCaselessAny(this string text, params string[] subtext)
+        {
+            return subtext.Any(text.EndsWithCaseless);
+        }
+
+        /// <summary>
+        /// Shortcut to EndsWith(subtext, StringComparison.InvariantCultureIgnoreCase)
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="subtext"></param>
+        /// <returns></returns>
+        public static bool EndsWithCaselessAll(this string text, params string[] subtext)
+        {
+            return subtext.All(text.EndsWithCaseless);
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using md.stdl.Interaction;
 using RawMouse = VVVV.Utils.IO.Mouse;
+using MouseWrap = md.stdl.Interaction.DesktopDeviceInputManager<VVVV.Utils.IO.Mouse>.DeviceWrap<VVVV.Utils.IO.Mouse>;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace md.stdl.MouseKeyboardTest
@@ -27,11 +28,15 @@ namespace md.stdl.MouseKeyboardTest
         private static readonly Brush ButtonBrushPressed = new SolidColorBrush(new Color { R = 0, G = 0, B = 0, A = 255 });
         private static readonly Brush ButtonBrushReleased = new SolidColorBrush(new Color { R = 128, G = 128, B = 128, A = 255 });
 
-        public MouseDevice(string name, RawMouse observableMouse, AccumulatingMouseObserver accMouse)
+        public MouseDevice(MouseWrap mouse, AccumulatingMouseObserver accMouse)
         {
             InitializeComponent();
-            DeviceName.Text = name;
-            observableMouse.MouseNotifications.Subscribe(notification =>
+            DeviceName.Text = mouse.Name;
+            if (mouse.Info.GetVidPid(out var vid, out var pid))
+            {
+                DeviceName.Text += $" (vid: {vid}, pid: {pid})";
+            }
+            mouse.Device.MouseNotifications.Subscribe(notification =>
             {
                 Dispatcher.BeginInvoke((Action) (() =>
                 {

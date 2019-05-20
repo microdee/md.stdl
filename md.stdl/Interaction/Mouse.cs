@@ -45,15 +45,24 @@ namespace md.stdl.Interaction
         /// <summary>
         /// Default constructor
         /// </summary>
-        public MouseInputManager() : base(DeviceType.Mouse) { }
+        public MouseInputManager() : base(DeviceType.Mouse)
+        {
+            SubscribeToDevices();
+        }
 
         /// <summary>
         /// Changing mouse data source is only supported via this function
         /// </summary>
         /// <param name="mode">The desired data source</param>
-        public void ChangeDataSource(DataSource mode)
+        public void ChangeDataSource(DataSource mode, bool selectMerged = false)
         {
             _dataSource = mode;
+            switch (mode)
+            {
+                case DataSource.Cursor: SelectMerged = false; break;
+                case DataSource.Raw: SelectMerged = selectMerged; break;
+                default: break;
+            }
             SubscribeToDevices();
         }
 
@@ -70,7 +79,14 @@ namespace md.stdl.Interaction
         {
             if (_dataSource == DataSource.Cursor)
             {
-                Devices = new [] { CreateCursorMouse() };
+                Devices = new[] { CreateCursorMouse() };
+                WrappedDevices = new List<DeviceWrap<Mouse>> { new DeviceWrap<Mouse>
+                {
+                    Device = Devices[0],
+                    Name = "Cursor",
+                    IsMerged = true
+                }};
+                DeviceNames = new[] {WrappedDevices[0].Name};
             }
             else
             {

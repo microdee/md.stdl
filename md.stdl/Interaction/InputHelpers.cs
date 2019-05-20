@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -62,7 +64,7 @@ namespace md.stdl.Interaction
         /// </summary>
         public string DescriptionString;
     }
-    static class RawInputExtensionMethods
+    public static class RawInputExtensionMethods
     {
         public static List<Keys> ToKeyCodes(this string value)
         {
@@ -87,6 +89,40 @@ namespace md.stdl.Interaction
             var deviceName = deviceInfo.DeviceName;
             var indexOfHash = deviceName.IndexOf('#');
             return deviceName.Substring(4, indexOfHash - 4);
+        }
+
+        /// <summary>
+        /// Gets the potential VID and PID of a device. It only works on devices which contain their HID info in their name
+        /// </summary>
+        /// <param name="deviceInfo"></param>
+        /// <param name="vid"></param>
+        /// <param name="pid"></param>
+        /// <returns></returns>
+        public static bool GetVidPid(this DeviceInfo deviceInfo, out int vid, out int pid)
+        {
+            vid = pid = -1;
+            if (deviceInfo == null) return false;
+            var vidmatch = Regex.Match(deviceInfo.DeviceName, @"[#&]VID_(?<vid>[A-F\d]+)");
+            var pidmatch = Regex.Match(deviceInfo.DeviceName, @"[#&]PID_(?<pid>[A-F\d]+)");
+            if (!vidmatch.Success || !pidmatch.Success) return false;
+            var pres = int.TryParse(vidmatch.Groups["vid"].Value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out vid);
+            pres = pres && int.TryParse(pidmatch.Groups["pid"].Value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out pid);
+
+            return pres;
+        }
+
+        /// <summary>
+        /// Checks if device's HID info matches input VID and PID
+        /// </summary>
+        /// <param name="deviceInfo"></param>
+        /// <param name="vid"></param>
+        /// <param name="pid"></param>
+        /// <returns></returns>
+        public static bool IsVidPid(this DeviceInfo deviceInfo, int vid, int pid)
+        {
+            var res = deviceInfo.GetVidPid(out var cVid, out var cPid);
+            if (!res) return false;
+            return cVid == vid && cPid == pid;
         }
 
         public static DeviceDescription GetDeviceDescription(this DeviceInfo deviceInfo)

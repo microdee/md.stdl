@@ -24,7 +24,10 @@ namespace md.stdl.Interaction
         /// <summary>
         /// Default constructor
         /// </summary>
-        public KeyboardInputManager() : base(DeviceType.Keyboard) { }
+        public KeyboardInputManager() : base(DeviceType.Keyboard)
+        {
+            SubscribeToDevices();
+        }
 
         /// <summary>
         /// Create a keyboard device

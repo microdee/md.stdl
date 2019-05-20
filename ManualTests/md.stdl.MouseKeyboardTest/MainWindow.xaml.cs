@@ -32,22 +32,21 @@ namespace md.stdl.MouseKeyboardTest
         private void OnInitialized(object sender, EventArgs e)
         {
             var mergedmouseman = new MouseInputManager();
-            mergedmouseman.SelectDevice(-1);
             var individualmouseman = new MouseInputManager();
-            individualmouseman.SelectDevice(Enumerable.Range(0, mergedmouseman.RawDevices.Count).ToArray());
-            var mice = mergedmouseman.Devices.Concat(individualmouseman.Devices).ToArray();
+            individualmouseman.SelectDevice(false, (info, i) => true);
+            var mice = mergedmouseman.WrappedDevices.Concat(individualmouseman.WrappedDevices).ToArray();
             var mousenames = mergedmouseman.DeviceNames.Concat(individualmouseman.DeviceNames).ToArray();
             var accmice = mice.Select(currmnouse =>
             {
                 var res = new AccumulatingMouseObserver();
-                res.SubscribeTo(currmnouse.MouseNotifications);
+                res.SubscribeTo(currmnouse.Device.MouseNotifications);
                 return res;
             }).ToArray();
             Dispatcher.BeginInvoke((Action) (() =>
             {
                 for (int i = 0; i < accmice.Length; i++)
                 {
-                    Mice.Items.Add(new MouseDevice(mousenames[i], mice[i], accmice[i]));
+                    Mice.Items.Add(new MouseDevice(mice[i], accmice[i]));
                 }
             }));
 

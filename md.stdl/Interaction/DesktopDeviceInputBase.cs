@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.PowerShell.Commands;
 using SharpDX.RawInput;
 
 // this work is a derivative of:
@@ -27,16 +28,63 @@ namespace md.stdl.Interaction
         /// </summary>
         public TDevice[] NewDevices;
     }
+
     /// <summary>
     /// Base class for RawInput device management.
     /// </summary>
     /// <typeparam name="TDevice">Type of the device wrapper. This is encouraged to be an observable but it's not mandatory.</typeparam>
+    /// <remarks>
+    /// This is ugly AF but I'm working from what I've got.
+    /// </remarks>
     public abstract class DesktopDeviceInputManager<TDevice>
     {
+        /// <summary>
+        /// Wrapper for all devices
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public struct DeviceWrap<T> where T : TDevice
+        {
+            /// <summary>
+            /// Actual device for wrapping
+            /// </summary>
+            public T Device { get; internal set; }
+
+            /// <summary>
+            /// Name of the device
+            /// </summary>
+            public string Name { get; internal set; }
+
+            /// <summary>
+            /// Associated device info. Can be null if device is merge or dummy.
+            /// </summary>
+            public DeviceInfo Info { get; internal set; }
+
+            /// <summary>
+            /// True if this is a merged device
+            /// </summary>
+            public bool IsMerged { get; internal set; }
+
+            /// <summary>
+            /// True if this device is created from RawInput
+            /// </summary>
+            public bool IsRaw { get; internal set; }
+
+            /// <summary>
+            /// True if this is a dummy device not doing anything.
+            /// </summary>
+            public bool IsDummy { get; internal set; }
+        }
+
+        /// <summary>
+        /// Devices wrapped in a convenient class. Like it should have been done in the first place...
+        /// </summary>
+        public List<DeviceWrap<TDevice>> WrappedDevices { get; protected set; } = new List<DeviceWrap<TDevice>>();
+
         /// <summary>
         /// Array of selected device wrappers
         /// </summary>
         public TDevice[] Devices { get; protected set; }
+
         /// <summary>
         /// Name of the selected devices
         /// </summary>
@@ -54,20 +102,42 @@ namespace md.stdl.Interaction
         public event EventHandler<DeviceListChangedEventArgs<TDevice>> DeviceListChanged;
 
         /// <summary>
-        /// Selected device ID's
+        /// Device selector predicates
         /// </summary>
-        protected int[] SelectedDevices = {-1};
+        protected Func<DeviceInfo, int, bool>[] SelectedDevices = Array.Empty<Func<DeviceInfo, int, bool>>();
+
+        /// <summary>
+        /// Select Merged device too
+        /// </summary>
+        public bool SelectMerged { get; set; } = true;
 
         private readonly DeviceType DevType;
 
         /// <summary>
-        /// Select devices with indices. 
+        /// Select devices with predicate functions. 
+        /// </summary>
+        /// <param name="predicates">list of predicates to select individual devices</param>
+        /// <remarks>Calling this function is not mandatory if you're satisfied with a single merged device.</remarks>
+        public void SelectDevice(bool selectmerged, params Func<DeviceInfo, int, bool>[] predicates)
+        {
+            SelectMerged = selectmerged;
+            SelectedDevices = predicates;
+            SubscribeToDevices();
+        }
+
+        /// <summary>
+        /// Select devices with indices. This is kept here for compatibility please use the overload using predicates.
         /// </summary>
         /// <param name="indices">Array of indices. Indices below 0 will create a virtual merged device of all.</param>
-        /// <remarks>Internal default index is -1. Calling this function is not mandatory if you're satisfied with a single merged device.</remarks>
+        /// <remarks>Calling this function is not mandatory if you're satisfied with a single merged device.</remarks>
+        [Obsolete("Please use the overload using predicates")]
         public void SelectDevice(params int[] indices)
         {
-            SelectedDevices = indices;
+            SelectMerged = indices.Any(i => i < 0);
+            SelectedDevices = indices
+                .Where(i => i >= 0)
+                .Select(i => new Func<DeviceInfo, int, bool>((d, ii) => ii == i))
+                .ToArray();
             SubscribeToDevices();
         }
 
@@ -79,6 +149,7 @@ namespace md.stdl.Interaction
         protected DesktopDeviceInputManager(DeviceType deviceType)
         {
             DevType = deviceType;
+            SelectMerged = true;
             RawInputService.DevicesChanged += (e, s) => SubscribeToDevices();
         }
 
@@ -97,30 +168,48 @@ namespace md.stdl.Interaction
             // So let's not rely on it if we're running on XP.
             if (RawDevices.Count > 0 || !Environment.OSVersion.IsWinVistaOrHigher())
             {
-                Devices = new TDevice[SelectedDevices.Length];
-                DeviceNames = new string[SelectedDevices.Length];
-                // An index of -1 means to merge all devices into one
-                for (int i = 0; i < SelectedDevices.Length; i++)
+                WrappedDevices.Clear();
+                int ii = 0; // input index
+                int io = 0; // output index
+                if (SelectMerged)
                 {
-                    var index = SelectedDevices[i];
-                    if (index < 0 || RawDevices.Count == 0)
+                    WrappedDevices.Add(new DeviceWrap<TDevice>
                     {
-                        Devices[i] = CreateMergedDevice(i);
-                        DeviceNames[i] = "Merged";
-                    }
-                    else
-                    {
-                        var device = RawDevices[index % RawDevices.Count];
-                        Devices[i] = CreateDevice(device, i);
-                        DeviceNames[i] = device.DeviceName;
-                    }
+                        Device = CreateMergedDevice(0),
+                        Name = "Merged",
+                        IsMerged = true
+                    });
+                    io++;
                 }
+                foreach (var info in RawDevices)
+                {
+                    if (SelectedDevices.Any(p => p(info, ii)))
+                    {
+                        WrappedDevices.Add(new DeviceWrap<TDevice>
+                        {
+                            Device = CreateDevice(info, io),
+                            Info = info,
+                            Name = info.DeviceName,
+                            IsRaw = true
+                        });
+                        io++;
+                    }
+                    ii++;
+                }
+                Devices = WrappedDevices.Select(d => d.Device).ToArray();
+                DeviceNames = WrappedDevices.Select(d => d.Name).ToArray();
             }
             else
             {
-                Devices = new TDevice[1];
-                DeviceNames = new [] { "Dummy" };
-                Devices[0] = CreateDummy();
+                WrappedDevices.Clear();
+                WrappedDevices.Add(new DeviceWrap<TDevice>
+                {
+                    Device = CreateDummy(),
+                    Name = "Dummy",
+                    IsDummy = true
+                });
+                Devices = new [] { WrappedDevices[0].Device };
+                DeviceNames = new[] { WrappedDevices[0].Name };
             }
 
             DeviceListChanged?.Invoke(this, new DeviceListChangedEventArgs<TDevice>

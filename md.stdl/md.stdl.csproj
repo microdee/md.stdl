@@ -136,6 +136,7 @@
     <Reference Include="VVVV.Utils3rdParty, Version=38.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VVVV.Utils3rdParty.38.1.0\build\net46\lib\AnyCPU\VVVV.Utils3rdParty.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="VVVV.UtilsIL, Version=38.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\VVVV.UtilsIL.38.1.0\lib\net461\VVVV.UtilsIL.dll</HintPath>
@@ -179,6 +180,7 @@
     <Compile Include="String\StringExtensions.cs" />
     <Compile Include="Time\Delay.cs" />
     <Compile Include="Time\StopwatchInteractive.cs" />
+    <Compile Include="Time\Tape.cs" />
     <Compile Include="Windows\AppCrashErrorMessageSuppression.cs" />
     <Compile Include="Windows\FileSystem.cs" />
     <Compile Include="Windows\Impersonation.cs" />

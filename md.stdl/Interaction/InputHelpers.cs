@@ -88,6 +88,8 @@ namespace md.stdl.Interaction
         {
             var deviceName = deviceInfo.DeviceName;
             var indexOfHash = deviceName.IndexOf('#');
+            if (indexOfHash < 4)
+                return "HID";
             return deviceName.Substring(4, indexOfHash - 4);
         }
 

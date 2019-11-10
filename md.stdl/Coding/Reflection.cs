@@ -74,7 +74,7 @@ namespace md.stdl.Coding
         /// <returns></returns>
         public static bool Is(this Type a, Type b)
         {
-            return a.IsAssignableFrom(b) || a.IsSubclassOf(b) ;
+            return a.IsAssignableFrom(b) || b.IsAssignableFrom(a) || a.IsSubclassOf(b) || b.IsSubclassOf(a);
         }
 
         /// <summary>

@@ -17,6 +17,12 @@ namespace md.stdl.Mathematics
     /// </summary>
     public static class NumericsExtensions
     {
+        public static float Frac(this float a) => a - (float)Floor(a);
+        public static double Frac(this double a) => a - Floor(a);
+
+        public static float Fmod(this float a, float b) => (a / b).Frac() * b;
+        public static double Fmod(this double a, double b) => (a / b).Frac() * b;
+
         public static bool Eq(this float a, float b = 0.0f, float e = float.Epsilon) => Abs(a - b) < e;
         public static bool Eq(this double a, double b = 0.0, double e = double.Epsilon) => Abs(a - b) < e;
         public static bool Eq(this Vector2 a, Vector2 b, float e = float.Epsilon) => Vector2.Distance(a, b) < e;

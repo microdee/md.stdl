@@ -179,6 +179,7 @@
     <Compile Include="String\StringDistance.cs" />
     <Compile Include="String\StringExtensions.cs" />
     <Compile Include="Time\Delay.cs" />
+    <Compile Include="Time\Sequencer.cs" />
     <Compile Include="Time\StopwatchInteractive.cs" />
     <Compile Include="Time\Tape.cs" />
     <Compile Include="Windows\AppCrashErrorMessageSuppression.cs" />

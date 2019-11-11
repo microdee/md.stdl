@@ -219,7 +219,7 @@ namespace md.stdl.Time
             Empty = true;
             MaxTime = maxTime;
             Resolution = resolution;
-            _samples = new (bool, T)[(int)(maxTime * resolution)];
+            _samples = new (bool, T)[(int)(maxTime * resolution) + 1];
             Interpolator = interp;
             Copier = copier;
             Default = def;
@@ -346,6 +346,29 @@ namespace md.stdl.Time
                 if (Empty) OnlyOneEntry = (true, roundt);
                 Empty = false;
             }
+        }
+
+        /// <summary>
+        /// Clears the tape to its default state again
+        /// </summary>
+        /// <param name="noGc">If true it will clear samples with a for loop
+        /// instead of allocating a new array (and in turn GC the old one)</param>
+        public void Clear(bool noGc = false)
+        {
+            if (noGc)
+            {
+                for (int i = 0; i < _samples.Length; i++)
+                {
+                    _samples[i] = (false, default);
+                }
+            }
+            else
+            {
+                _samples = new (bool, T)[(int)(MaxTime * Resolution) + 1];
+            }
+
+            Empty = true;
+            OnlyOneEntry = (false, 0);
         }
     }
 }
